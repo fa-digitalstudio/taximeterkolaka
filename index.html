@@ -369,6 +369,57 @@
     </div>
 </div>
 
+<!-- KUSTOM MODAL: KONFIRMASI LOGOUT -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <h3 style="color: var(--danger);">Konfirmasi Keluar</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
+            Apakah Anda yakin ingin keluar (Logout) dan mengunci aplikasi kembali?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn-premium-primary" style="background: var(--danger); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25) !important;" onclick="confirmLogout()">Ya, Keluar</button>
+            <button type="button" class="btn-premium-secondary" onclick="closeModal('logoutModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- KUSTOM MODAL: KONFIRMASI RESET -->
+<div id="resetModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <h3 style="color: var(--danger);">Reset Argometer</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
+            Apakah Anda yakin ingin MENGHAPUS semua data perjalanan ini?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn-premium-primary" style="background: var(--danger); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25) !important;" onclick="confirmReset()">Ya, Hapus</button>
+            <button type="button" class="btn-premium-secondary" onclick="closeModal('resetModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- KUSTOM MODAL: KONFIRMASI MULAI PERJALANAN -->
+<div id="startTripModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <h3 style="color: var(--accent-green);">Mulai Perjalanan</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
+            Apakah Anda ingin memulai perjalanan baru dan mengaktifkan argometer?
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn-premium-success" onclick="confirmStartTrip()">Ya, Mulai</button>
+            <button type="button" class="btn-premium-secondary" onclick="closeModal('startTripModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- KUSTOM MODAL: NOTIFIKASI UMUM (GANTI ALERT BERHASIL) -->
+<div id="alertModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <h3 id="alertTitle" style="color: var(--accent-blue);">Notifikasi</h3>
+        <p id="alertMessage" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;"></p>
+        <button type="button" class="btn-premium-primary" onclick="closeModal('alertModal')">OK</button>
+    </div>
+</div>
+
 <div id="printArea">
     <div class="print-header">
         <h2>DRIVER SANTAI KOLAKA</h2>
@@ -451,10 +502,13 @@
     }
 
     function logoutApplication() {
-        if (confirm("Apakah Anda yakin ingin keluar (Logout) dan mengunci aplikasi kembali?")) {
-            localStorage.removeItem('taxi_remember_login');
-            location.reload();
-        }
+        toggleSidebar();
+        document.getElementById('logoutModal').style.display = 'flex';
+    }
+
+    function confirmLogout() {
+        localStorage.removeItem('taxi_remember_login');
+        location.reload();
     }
 
     /* KONTROL LAYAR TETAP MENYALA (WAKE LOCK API) */
@@ -536,8 +590,12 @@
         localStorage.setItem('set_awal', TARIF_AWAL);
         localStorage.setItem('set_km', TARIF_PER_KM);
         localStorage.setItem('set_tunggu', TARIF_TUNGGU_PER_JAM);
-        alert("Tarif Berhasil Diperbarui!");
+        
         closeModal('settingsModal');
+        
+        document.getElementById('alertTitle').innerText = "Sistem Berhasil";
+        document.getElementById('alertMessage').innerText = "Tarif Berhasil Diperbarui!";
+        document.getElementById('alertModal').style.display = 'flex';
     }
 
     function updateUI() {
@@ -570,11 +628,7 @@
         const statusBar = document.getElementById('gpsStatusContainer');
         
         if (watchId === null) {
-            startTrip();
-            activateWakeLock(); // Mengunci layar agar tetap menyala saat jalan
-            btn.classList.add('running');
-            btn.innerText = "Akhiri Perjalanan";
-            statusBar.classList.add('gps-active');
+            document.getElementById('startTripModal').style.display = 'flex';
         } else {
             stopTrip();
             deactivateWakeLock(); // Melepas kunci layar
@@ -584,6 +638,18 @@
             document.getElementById('gpsStatus').innerText = "GPS: Terhenti";
             document.getElementById('speedDisplay').innerText = "0.0";
         }
+    }
+
+    function confirmStartTrip() {
+        closeModal('startTripModal');
+        const btn = document.getElementById('btnAction');
+        const statusBar = document.getElementById('gpsStatusContainer');
+        
+        startTrip();
+        activateWakeLock(); // Mengunci layar agar tetap menyala saat jalan
+        btn.classList.add('running');
+        btn.innerText = "Akhiri Perjalanan";
+        statusBar.classList.add('gps-active');
     }
 
     function startTrip() {
@@ -665,27 +731,30 @@
     }
 
     function resetMeter() {
-        if(confirm("Apakah Anda yakin ingin MENGHAPUS semua data perjalanan ini?")) {
-            stopTrip();
-            deactivateWakeLock();
-            totalDistance = totalFare = waitSeconds = tripSeconds = 0;
-            localStorage.removeItem('taxi_dist');
-            localStorage.removeItem('taxi_fare');
-            localStorage.removeItem('taxi_wait');
-            localStorage.removeItem('taxi_trip_time');
-            
-            document.getElementById('btnAction').classList.remove('running');
-            document.getElementById('btnAction').innerText = "Mulai Perjalanan";
-            document.getElementById('speedDisplay').innerText = "0.0";
-            document.getElementById('gpsStatusContainer').classList.remove('gps-active');
-            document.getElementById('gpsStatus').innerText = "GPS: Menunggu...";
-            pathLine.setLatLngs([]);
-            
-            const arrowEl = document.getElementById('navArrow');
-            if(arrowEl) arrowEl.style.transform = `rotate(0deg)`;
-            
-            updateUI();
-        }
+        document.getElementById('resetModal').style.display = 'flex';
+    }
+
+    function confirmReset() {
+        closeModal('resetModal');
+        stopTrip();
+        deactivateWakeLock();
+        totalDistance = totalFare = waitSeconds = tripSeconds = 0;
+        localStorage.removeItem('taxi_dist');
+        localStorage.removeItem('taxi_fare');
+        localStorage.removeItem('taxi_wait');
+        localStorage.removeItem('taxi_trip_time');
+        
+        document.getElementById('btnAction').classList.remove('running');
+        document.getElementById('btnAction').innerText = "Mulai Perjalanan";
+        document.getElementById('speedDisplay').innerText = "0.0";
+        document.getElementById('gpsStatusContainer').classList.remove('gps-active');
+        document.getElementById('gpsStatus').innerText = "GPS: Menunggu...";
+        pathLine.setLatLngs([]);
+        
+        const arrowEl = document.getElementById('navArrow');
+        if(arrowEl) arrowEl.style.transform = `rotate(0deg)`;
+        
+        updateUI();
     }
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
