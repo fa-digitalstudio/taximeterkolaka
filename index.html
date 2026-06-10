@@ -10,6 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
+    <!-- Tambahan Script Library Google -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
         /* Konfigurasi Tema Super Terang (Bright Theme) */
         :root {
@@ -269,6 +272,27 @@
             <label for="rememberPass" style="font-size: 0.85rem; font-weight: 700; color: #475569; cursor: pointer; user-select: none;">Simpan password di perangkat</label>
         </div>
         <button type="button" class="btn-premium-primary" onclick="verifyAppPassword()">Masuk Aplikasi</button>
+        
+        <!-- Tambahan Kode Tombol Google Login -->
+        <div style="margin: 20px 0 10px 0; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">Akses Cepat</div>
+        <div id="g_id_onload"
+             data-client_id="GANTI_DENGAN_CLIENT_ID_GOOGLE_ANDA"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleGoogleLogin"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="signin_with"
+             data-size="large"
+             data-logo_alignment="left"
+             style="display: flex; justify-content: center; width: 100%;">
+        </div>
+        <!-- Batas Tambahan -->
+
         <p id="loginError" style="color: var(--danger); font-size: 0.85rem; font-weight: 800; text-align: center; margin-top: 14px; display: none; background: rgba(239, 68, 68, 0.08); padding: 10px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.15);">❌ Password Salah!</p>
     </div>
 </div>
@@ -776,6 +800,19 @@
         document.getElementById('p-total').innerText = "Rp " + document.getElementById('fareDisplay').innerText;
 
         window.print();
+    }
+
+    /* --- FUNGSI TAMBAHAN UNTUK GOOGLE LOGIN --- */
+    function handleGoogleLogin(response) {
+        if(response.credential) {
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('lockScreen').style.display = 'none';
+            
+            // Simpan sesi login jika dicentang
+            if (document.getElementById('rememberPass').checked) {
+                localStorage.setItem('taxi_remember_login', 'true');
+            }
+        }
     }
 </script>
 </body>
