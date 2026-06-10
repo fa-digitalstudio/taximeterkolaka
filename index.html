@@ -308,10 +308,11 @@
         <span class="close-btn" onclick="toggleSidebar()">×</span>
     </div>
     <button type="button" onclick="openModal('settingsModal')">🔧 Pengaturan Tarif</button>
-    <button type="button" onclick="openModal('donationModal')">☕ Donasi Pengembangan</button>
+    <button type="button" onclick="openModal('donationModal')">💰 Donasi / Dukungan</button>
     <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
 </div>
 
+<!-- DESAIN BARU POPUP SETTINGS MODAL -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <h3>Pengaturan Tarif</h3>
@@ -325,21 +326,23 @@
     </div>
 </div>
 
+<!-- POPUP MODAL DONASI OVO -->
 <div id="donationModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <h3 style="color: var(--accent-blue);">Dukung Kami</h3>
-        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
-            Jika aplikasi ini bermanfaat untuk operasional harian Anda, pertimbangkan untuk menyisihkan sedikit rezeki guna mendukung pengembangan aplikasi ini agar tetap aktif.
+        <h3 style="color: var(--accent-blue);">Donasi Pengembangan</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; font-weight: 600;">
+            Dukung pengembangan aplikasi ini via OVO:
         </p>
-        <div class="modal-actions">
-            <a href="https://saweria.co/" target="_blank" style="text-decoration: none; width: 100%;">
-                <button type="button" class="btn-premium-success" style="width: 100%;">☕ Kirim Kopi (Donasi)</button>
-            </a>
-            <button type="button" class="btn-premium-secondary" onclick="closeModal('donationModal')">Tutup</button>
+        <div style="background: #f4f7f9; border: 2px dashed #4285F4; padding: 16px; border-radius: 14px; margin-bottom: 24px;">
+            <span style="font-size: 1.3rem; font-weight: 800; color: #4c2a86; display: block; margin-bottom: 4px; letter-spacing: 1px;">OVO</span>
+            <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px; letter-spacing: 0.5px;">085825444030</span>
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 700;">A.N Farid Aris</span>
         </div>
+        <button type="button" class="btn-premium-primary" onclick="closeModal('donationModal')" style="width: 100%;">OK, Tutup</button>
     </div>
 </div>
 
+<!-- DESAIN BARU POPUP ABOUT MODAL -->
 <div id="aboutModal" class="modal">
     <div class="modal-content" style="text-align: center;">
         <div style="width: 80px; height: 80px; margin: 0 auto 14px auto; background: #ffffff; border-radius: 50%; padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center;">
@@ -356,6 +359,7 @@
     </div>
 </div>
 
+<!-- KUSTOM MODAL: KONFIRMASI RESET -->
 <div id="resetModal" class="modal">
     <div class="modal-content" style="text-align: center;">
         <h3 style="color: var(--danger);">Reset Argometer</h3>
@@ -369,6 +373,7 @@
     </div>
 </div>
 
+<!-- KUSTOM MODAL: KONFIRMASI MULAI PERJALANAN -->
 <div id="startTripModal" class="modal">
     <div class="modal-content" style="text-align: center;">
         <h3 style="color: var(--accent-green);">Mulai Perjalanan</h3>
@@ -382,6 +387,7 @@
     </div>
 </div>
 
+<!-- KUSTOM MODAL: NOTIFIKASI UMUM (GANTI ALERT BERHASIL) -->
 <div id="alertModal" class="modal">
     <div class="modal-content" style="text-align: center;">
         <h3 id="alertTitle" style="color: var(--accent-blue);">Notifikasi</h3>
