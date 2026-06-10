@@ -334,7 +334,7 @@
         <h3 style="margin-bottom: 6px;">Driver Santai Kolaka</h3>
         <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom: 24px; font-weight: 600;">
             Aplikasi Argometer Pintar berbasis GPS.<br>
-            Sistem akurasi tinggi (Filter > 25m) anti loncat.<br><br>
+            Sistem akurasi tinggi (Filter > 15m) anti loncat.<br><br>
             Dikembangkan Oleh:<br>
             <span style="color: #0f172a; font-weight: 800; font-size: 0.95rem;">Andi Farid Aris</span>
         </p>
@@ -578,7 +578,7 @@
             watchId = navigator.geolocation.watchPosition((pos) => {
                 const { latitude, longitude, speed, heading, accuracy } = pos.coords;
                 
-                if (accuracy > 25) {
+                if (accuracy > 15) {
                     document.getElementById('gpsStatus').innerText = `Mencari Sinyal Kuat... (${Math.floor(accuracy)}m)`;
                     return; 
                 }
@@ -603,7 +603,7 @@
 
                 if (lastCoords) {
                     const d = calculateDistance(lastCoords.lat, lastCoords.lon, latitude, longitude);
-                    if (d > 0.004 && liveSpeed > 2) { 
+                    if (d > 0.005 && liveSpeed > 2) { 
                         totalDistance += d;
                         totalFare += d * TARIF_PER_KM;
                         stopWaitTimer();
