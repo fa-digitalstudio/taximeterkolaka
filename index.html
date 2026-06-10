@@ -10,9 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Tambahan Script Library Google -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <style>
         /* Konfigurasi Tema Super Terang (Bright Theme) */
         :root {
@@ -250,41 +247,6 @@
 </head>
 <body>
 
-<!-- DESAIN BARU LAYAR KUNCI / INPUT PASSWORD -->
-<div id="lockScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px;">
-    <div class="modal-content" style="box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.35); border: 1px solid rgba(255, 255, 255, 0.8); background: #ffffff;">
-        <div style="text-align: center; margin-bottom: 24px;">
-            <div style="width: 84px; height: 84px; margin: 0 auto 14px auto; background: #ffffff; border-radius: 50%; padding: 4px; box-shadow: 0 8px 24px rgba(66, 133, 244, 0.15); border: 2px solid var(--accent-blue); display: flex; align-items: center; justify-content: center;">
-                <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-            </div>
-            <h2 style="font-weight: 800; font-size: 1.4rem; text-transform: uppercase; color: #0f172a; letter-spacing: 0.3px; margin-bottom: 2px;">Akses Terkunci</h2>
-            <p style="font-size: 0.85rem; color: var(--accent-blue); font-weight: 800; letter-spacing: 0.5px;">DRIVER SANTAI KOLAKA</p>
-        </div>
-        <div class="input-group">
-            <label>Masukkan Password</label>
-            <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                <input type="password" id="appPassword" style="width: 100%; padding-right: 85px;" placeholder="Ketik sandi...">
-                <button type="button" id="btnTogglePass" onclick="togglePasswordInput()" style="position: absolute; right: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 800; background: #ffffff; color: #475569; border: 1px solid #e2e8f0; border-radius: 10px; height: 75%; text-transform: none; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s;">Lihat</button>
-            </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px; margin: 16px 0 24px 0;">
-            <input type="checkbox" id="rememberPass" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-blue);">
-            <label for="rememberPass" style="font-size: 0.85rem; font-weight: 700; color: #475569; cursor: pointer; user-select: none;">Simpan password di perangkat</label>
-        </div>
-        <button type="button" class="btn-premium-primary" onclick="verifyAppPassword()">Masuk Aplikasi</button>
-        
-        <!-- Tambahan Kode Tombol Google Login Kustom Permanen -->
-        <div style="margin: 20px 0 10px 0; text-align: center; color: #64748b; font-size: 0.85rem; font-weight: 800; text-transform: uppercase;">Akses Cepat</div>
-        <button type="button" onclick="handleGoogleLogin({credential: 'bypass_local_testing'})" style="display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; background: #ffffff; color: #374151; border: 2px solid #e2e8f0; padding: 12px; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.04); text-transform: none;">
-            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24dp/logo_googleg_color_24dp.png" style="width: 20px; height: 20px;" alt="Google">
-            Masuk dengan Google
-        </button>
-        <!-- Batas Tambahan -->
-
-        <p id="loginError" style="color: var(--danger); font-size: 0.85rem; font-weight: 800; text-align: center; margin-top: 14px; display: none; background: rgba(239, 68, 68, 0.08); padding: 10px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.15);">❌ Password Salah!</p>
-    </div>
-</div>
-
 <div class="wrapper">
     <div class="community-header">
         <div class="brand-box">
@@ -347,7 +309,6 @@
     </div>
     <button type="button" onclick="openModal('settingsModal')">🔧 Pengaturan Tarif</button>
     <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
-    <button type="button" onclick="logoutApplication()" style="background: var(--danger); color:#fff; border:none; margin-top: auto;">🚪 Keluar (Logout)</button>
 </div>
 
 <!-- DESAIN BARU POPUP SETTINGS MODAL -->
@@ -378,20 +339,6 @@
             <span style="color: #0f172a; font-weight: 800; font-size: 0.95rem;">Andi Farid Aris</span>
         </p>
         <button type="button" class="btn-premium-secondary" onclick="closeModal('aboutModal')" style="width: 100%;">Tutup</button>
-    </div>
-</div>
-
-<!-- KUSTOM MODAL: KONFIRMASI LOGOUT -->
-<div id="logoutModal" class="modal">
-    <div class="modal-content" style="text-align: center;">
-        <h3 style="color: var(--danger);">Konfirmasi Keluar</h3>
-        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
-            Apakah Anda yakin ingin keluar (Logout) dan mengunci aplikasi kembali?
-        </p>
-        <div class="modal-actions">
-            <button type="button" class="btn-premium-primary" style="background: var(--danger); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25) !important;" onclick="confirmLogout()">Ya, Keluar</button>
-            <button type="button" class="btn-premium-secondary" onclick="closeModal('logoutModal')">Batal</button>
-        </div>
     </div>
 </div>
 
@@ -455,7 +402,6 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const PASSWORD_SISTEM = "kolaka"; // Silakan ganti kata dalam tanda petik jika ingin mengubah password utama
     let wakeLockObj = null;
 
     let TARIF_AWAL = parseInt(localStorage.getItem('set_awal')) || 9000;
@@ -471,11 +417,6 @@
     let map, pathLine, carMarker;
 
     window.onload = () => {
-        // Cek Verifikasi Login Password
-        if (localStorage.getItem('taxi_remember_login') === 'true') {
-            document.getElementById('lockScreen').style.display = 'none';
-        }
-
         document.getElementById('inAwal').value = TARIF_AWAL.toLocaleString('id-ID');
         document.getElementById('inKm').value = TARIF_PER_KM.toLocaleString('id-ID');
         document.getElementById('inTunggu').value = TARIF_TUNGGU_PER_JAM.toLocaleString('id-ID');
@@ -483,45 +424,6 @@
         initMap();
         updateUI();
     };
-
-    /* KONTROL SISTEM KEAMANAN PASSWORD */
-    function togglePasswordInput() {
-        const field = document.getElementById('appPassword');
-        const btn = document.getElementById('btnTogglePass');
-        if(field.type === 'password') {
-            field.type = 'text';
-            btn.innerText = 'Sembunyi';
-        } else {
-            field.type = 'password';
-            btn.innerText = 'Lihat';
-        }
-    }
-
-    function verifyAppPassword() {
-        const inputPass = document.getElementById('appPassword').value;
-        const errHint = document.getElementById('loginError');
-        const isChecked = document.getElementById('rememberPass').checked;
-
-        if (inputPass === PASSWORD_SISTEM) {
-            errHint.style.display = 'none';
-            if (isChecked) {
-                localStorage.setItem('taxi_remember_login', 'true');
-            }
-            document.getElementById('lockScreen').style.display = 'none';
-        } else {
-            errHint.style.display = 'block';
-        }
-    }
-
-    function logoutApplication() {
-        toggleSidebar();
-        document.getElementById('logoutModal').style.display = 'flex';
-    }
-
-    function confirmLogout() {
-        localStorage.removeItem('taxi_remember_login');
-        location.reload();
-    }
 
     /* KONTROL LAYAR TETAP MENYALA (WAKE LOCK API) */
     async function activateWakeLock() {
@@ -788,19 +690,6 @@
         document.getElementById('p-total').innerText = "Rp " + document.getElementById('fareDisplay').innerText;
 
         window.print();
-    }
-
-    /* --- FUNGSI TAMBAHAN UNTUK GOOGLE LOGIN --- */
-    function handleGoogleLogin(response) {
-        if(response.credential) {
-            document.getElementById('loginError').style.display = 'none';
-            document.getElementById('lockScreen').style.display = 'none';
-            
-            // Simpan sesi login jika dicentang
-            if (document.getElementById('rememberPass').checked) {
-                localStorage.setItem('taxi_remember_login', 'true');
-            }
-        }
     }
 </script>
 </body>
