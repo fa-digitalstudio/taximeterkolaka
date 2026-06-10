@@ -142,24 +142,72 @@
 
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.6; } }
 
-        /* Modals & Lock Screen */
+        /* --- DESAIN ULANG MODALS & LOCK SCREEN (LEBIH KEREN & MODERN) --- */
+        
+        @keyframes modalPop {
+            0% { transform: scale(0.92) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
         .modal { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); /* Efek blur modern */
             justify-content: center; align-items: center; z-index: 9999; padding: 16px;
         }
+        
         .modal-content { 
-            background: var(--bg-card); padding: 24px; border-radius: var(--card-radius); 
-            width: 100%; max-width: 340px; border: 1px solid var(--border-color);
+            background: var(--bg-card); padding: 30px 24px; border-radius: var(--card-radius); 
+            width: 100%; max-width: 360px; border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative; overflow: hidden;
         }
-        .modal h3 { font-size: 1.2rem; margin-bottom: 16px; font-weight: 800;}
-        .input-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-        .input-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;}
+
+        /* Aksen garis atas pada modal */
+        .modal-top-accent {
+            position: absolute; top: 0; left: 0; width: 100%; height: 6px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+        }
+
+        .modal h3 { font-size: 1.3rem; margin-bottom: 20px; font-weight: 800; color: var(--text-main); text-align: center;}
+        
+        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .input-group label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        /* Input yang lebih dinamis dan premium */
         .modal input { 
-            background: var(--bg-screen); border: 1px solid var(--border-color);
-            padding: 14px; border-radius: var(--btn-radius); color: var(--text-main); font-size: 1.1rem; outline: none; font-weight: bold;
+            background: #f8fafc; border: 2px solid #e2e8f0;
+            padding: 14px 16px; border-radius: var(--btn-radius); color: var(--text-main); 
+            font-size: 1.05rem; outline: none; font-weight: bold; transition: all 0.3s ease;
         }
-        .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+        .modal input:focus {
+            border-color: var(--accent-blue);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.15);
+        }
+
+        .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+
+        /* Tombol Spesial Gradien */
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+            color: white; padding: 16px; font-weight: 800; border: none; 
+            box-shadow: 0 10px 20px -5px rgba(66, 133, 244, 0.5);
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 0.5px;
+            border-radius: var(--btn-radius); cursor: pointer; width: 100%;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(66, 133, 244, 0.6);
+        }
+        .btn-gradient:active { transform: translateY(1px); }
+
+        .btn-outline {
+            background: transparent; color: var(--text-muted); padding: 14px; font-weight: 800; 
+            border: 2px solid var(--border-color); border-radius: var(--btn-radius);
+            transition: all 0.2s ease; cursor: pointer; text-transform: uppercase;
+        }
+        .btn-outline:hover { background: var(--bg-screen); color: var(--text-main); }
 
         /* Area Cetak Struk (Disembunyikan saat mode layar) */
         #printArea { display: none; }
@@ -200,26 +248,32 @@
 </head>
 <body>
 
-<div id="lockScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px;">
-    <div class="modal-content" style="box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 360px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width:70px; border-radius:50%; border: 2px solid var(--accent-blue); margin-bottom:10px;">
-            <h2 style="font-weight: 800; font-size: 1.3rem; text-transform: uppercase;">Akses Terkunci</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Driver Santai Kolaka</p>
+<!-- LOCK SCREEN DESAIN BARU -->
+<div id="lockScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #eef2f6 0%, #d6e0ea 100%); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div class="modal-content">
+        <div class="modal-top-accent"></div>
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 84px; height: 84px; margin: 0 auto 16px auto; background: white; border-radius: 50%; padding: 4px; box-shadow: 0 8px 24px rgba(66, 133, 244, 0.2);">
+                <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </div>
+            <h2 style="font-weight: 800; font-size: 1.5rem; color: var(--text-main); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Akses Terkunci</h2>
+            <p style="font-size: 0.85rem; color: var(--accent-blue); font-weight: 800;">Driver Santai Kolaka</p>
         </div>
+        
         <div class="input-group">
-            <label>Masukkan Password</label>
-            <div style="position: relative; display: flex; align-items: center;">
-                <input type="password" id="appPassword" style="width: 100%; padding-right: 75px;" placeholder="Ketik sandi...">
-                <button type="button" id="btnTogglePass" onclick="togglePasswordInput()" style="position: absolute; right: 6px; padding: 6px 10px; font-size: 0.75rem; background: var(--bg-card); border: 1px solid var(--border-color); height: 80%; text-transform: none;">Lihat</button>
+            <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                <input type="password" id="appPassword" style="width: 100%; padding-right: 90px;" placeholder="Masukkan sandi akses...">
+                <button type="button" id="btnTogglePass" onclick="togglePasswordInput()" style="position: absolute; right: 6px; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; background: rgba(66, 133, 244, 0.1); color: var(--accent-blue); border: none; border-radius: 8px; height: 75%; text-transform: none; cursor: pointer; transition: 0.2s;">Lihat</button>
             </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0 20px 0;">
-            <input type="checkbox" id="rememberPass" style="width: 18px; height: 18px; cursor: pointer;">
-            <label for="rememberPass" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); cursor: pointer;">Simpan password di perangkat</label>
+        
+        <div style="display: flex; align-items: center; gap: 10px; margin: 16px 0 24px 0; padding: 0 4px;">
+            <input type="checkbox" id="rememberPass" style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent-blue);">
+            <label for="rememberPass" style="font-size: 0.9rem; font-weight: 700; color: var(--text-muted); cursor: pointer; user-select: none;">Ingat saya di perangkat ini</label>
         </div>
-        <button type="button" onclick="verifyAppPassword()" style="width: 100%; background: var(--accent-blue); color: white; padding: 14px; font-weight: 800; border: none; box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);">Masuk Aplikasi</button>
-        <p id="loginError" style="color: var(--danger); font-size: 0.8rem; font-weight: 800; text-align: center; margin-top: 12px; display: none;">❌ Password Salah!</p>
+        
+        <button type="button" class="btn-gradient" onclick="verifyAppPassword()">Buka Aplikasi</button>
+        <p id="loginError" style="color: var(--danger); font-size: 0.85rem; font-weight: 800; text-align: center; margin-top: 16px; display: none; background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2);">❌ Password Salah, silakan coba lagi!</p>
     </div>
 </div>
 
@@ -288,30 +342,36 @@
     <button type="button" onclick="logoutApplication()" style="background: var(--danger); color:#fff; border:none; margin-top: auto;">🚪 Keluar (Logout)</button>
 </div>
 
+<!-- SETTINGS MODAL DESAIN BARU -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
+        <div class="modal-top-accent"></div>
         <h3>Pengaturan Tarif</h3>
         <div class="input-group"><label>Tarif Awal (Rp)</label><input type="text" id="inAwal" onkeyup="formatInput(this)"></div>
         <div class="input-group"><label>Tarif per KM (Rp)</label><input type="text" id="inKm" onkeyup="formatInput(this)"></div>
         <div class="input-group"><label>Tarif Tunggu / Jam (Rp)</label><input type="text" id="inTunggu" onkeyup="formatInput(this)"></div>
         <div class="modal-actions">
-            <button type="button" onclick="saveSettings()" style="background: var(--accent-green); color:#fff; font-weight:800; border: none; padding: 14px;">Simpan Perubahan</button>
-            <button type="button" onclick="closeModal('settingsModal')" style="padding: 14px;">Batal</button>
+            <button type="button" class="btn-gradient" onclick="saveSettings()" style="background: linear-gradient(135deg, var(--accent-green), #009945); box-shadow: 0 10px 20px -5px rgba(0, 184, 83, 0.5);">Simpan Perubahan</button>
+            <button type="button" class="btn-outline" onclick="closeModal('settingsModal')">Batal</button>
         </div>
     </div>
 </div>
 
+<!-- ABOUT MODAL DESAIN BARU -->
 <div id="aboutModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width:70px; border-radius:50%; margin-bottom:10px;">
-        <h3>Driver Santai Kolaka</h3>
-        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.5; margin-bottom: 20px;">
+        <div class="modal-top-accent"></div>
+        <div style="width: 70px; height: 70px; margin: 0 auto 16px auto; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));">
+            <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid white;">
+        </div>
+        <h3 style="margin-bottom: 8px;">Driver Santai Kolaka</h3>
+        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom: 24px; font-weight: 600;">
             Aplikasi Argometer Pintar berbasis GPS.<br>
             Sistem akurasi tinggi (Filter > 25m) anti loncat.<br><br>
             Dikembangkan Oleh:<br>
-            <strong>Andi Farid Aris</strong>
+            <span style="color: var(--text-main); font-weight: 800; font-size: 1rem;">Andi Farid Aris</span>
         </p>
-        <button type="button" onclick="closeModal('aboutModal')" style="padding: 14px; width: 100%;">Tutup</button>
+        <button type="button" class="btn-outline" onclick="closeModal('aboutModal')" style="width: 100%;">Tutup</button>
     </div>
 </div>
 
@@ -374,9 +434,13 @@
         if(field.type === 'password') {
             field.type = 'text';
             btn.innerText = 'Sembunyi';
+            btn.style.background = 'rgba(239, 68, 68, 0.1)';
+            btn.style.color = 'var(--danger)';
         } else {
             field.type = 'password';
             btn.innerText = 'Lihat';
+            btn.style.background = 'rgba(66, 133, 244, 0.1)';
+            btn.style.color = 'var(--accent-blue)';
         }
     }
 
@@ -390,9 +454,22 @@
             if (isChecked) {
                 localStorage.setItem('taxi_remember_login', 'true');
             }
-            document.getElementById('lockScreen').style.display = 'none';
+            // Efek fade out keren
+            const lockScreen = document.getElementById('lockScreen');
+            lockScreen.style.transition = 'opacity 0.4s ease';
+            lockScreen.style.opacity = '0';
+            setTimeout(() => { lockScreen.style.display = 'none'; }, 400);
         } else {
             errHint.style.display = 'block';
+            // Efek shake error
+            const modal = document.querySelector('#lockScreen .modal-content');
+            modal.style.animation = 'none';
+            setTimeout(() => {
+                modal.style.animation = 'modalPop 0.3s ease';
+                modal.style.transform = 'translateY(0) translateX(5px)';
+                setTimeout(() => modal.style.transform = 'translateY(0) translateX(-5px)', 50);
+                setTimeout(() => modal.style.transform = 'translateY(0) translateX(0)', 100);
+            }, 10);
         }
     }
 
