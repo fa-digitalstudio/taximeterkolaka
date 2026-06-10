@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bright GPS Taxi Meter - Driver Santai Kolaka</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Konfigurasi Tema Super Terang (Bright Theme) */
+        :root {
+            --bg-main: #eef2f6; 
+            --bg-card: #ffffff; 
+            --bg-screen: #f4f7f9; 
+            --accent-green: #00b853; 
+            --accent-blue: #4285F4; 
+            --text-main: #1a1a1a; 
+            --text-muted: #6b7280; 
+            --border-color: #d1d5db; 
+            --btn-radius: 12px;
+            --card-radius: 24px;
+            --danger: #ef4444; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        body { 
+            background: var(--bg-main); 
+            color: var(--text-main); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            padding: 12px;
+            position: relative;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: max-width 0.3s ease;
+        }
+
+        /* Header Komunitas & Menu */
+        .community-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            background: var(--bg-card);
+            padding: 14px 16px;
+            border-radius: var(--btn-radius);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            position: relative;
+        }
+        
+        .brand-box { display: flex; align-items: center; gap: 12px; }
+        .community-logo { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; border: 2px solid var(--accent-blue);}
+        .community-name { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;}
+        .community-sub { font-size: 0.75rem; color: var(--text-muted); display: block; font-weight: 600; }
+
+        /* Tombol Hamburger */
+        .menu-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Sidebar Menu */
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px);
+        }
+        .sidebar {
+            position: fixed; top: 0; right: -280px; width: 260px; height: 100%;
+            background: var(--bg-card); box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease; z-index: 1000; padding: 20px; display: flex; flex-direction: column; gap: 15px;
+        }
+        .sidebar.active { right: 0; }
+        .sidebar-header {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 1.2rem; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 10px;
+        }
+        .close-btn { cursor: pointer; color: var(--danger); font-size: 1.5rem; }
+        .sidebar button {
+            background: var(--bg-screen); width: 100%; padding: 14px; text-align: left;
+            border-radius: var(--btn-radius); font-size: 0.95rem; justify-content: flex-start;
+        }
+
+        /* Kotak Utama Argometer */
+        .meter-box { 
+            background: var(--bg-card); width: 100%; padding: 20px; 
+            border-radius: var(--card-radius); border: 1px solid var(--border-color); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 14px;
+        }
+
+        .screen { 
+            background: var(--bg-screen); padding: 14px 18px; 
+            border-radius: var(--btn-radius); border: 1px solid var(--border-color); display: flex; flex-direction: column; box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+        }
+
+        .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+        .value { font-family: 'Share Tech Mono', monospace; font-size: 3.8rem; font-weight: bold; color: var(--accent-green); line-height: 1; text-align: left; text-shadow: 0 2px 4px rgba(0, 184, 83, 0.15); }
+
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .grid-info .value { font-size: 2.2rem; }
+
+        #map { width: 100%; height: 200px; border-radius: var(--btn-radius); border: 1px solid var(--border-color); z-index: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        /* Blok Kontrol Aksi Tombol */
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        button { 
+            padding: 16px 10px; border: none; border-radius: var(--btn-radius); 
+            font-size: 0.9rem; font-weight: 800; cursor: pointer; text-transform: uppercase; 
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            background: var(--bg-screen); color: var(--text-main); border: 1px solid var(--border-color); transition: all 0.2s ease;
+        }
+        button:active { transform: scale(0.96); }
+
+        #btnAction { background: var(--accent-green); color: #fff; border: none; box-shadow: 0 4px 12px rgba(0, 184, 83, 0.3); }
+        #btnAction.running { background: var(--danger); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        #btnPrint { grid-column: span 2; background: #1f2937; color: #fff; border: none; box-shadow: 0 4px 12px rgba(31, 41, 55, 0.3);}
+
+        /* Status GPS */
+        .status-bar { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .gps-dot { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; }
+        .gps-active .gps-dot { background: var(--accent-green); animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.6; } }
+
+        /* Modals & Lock Screen */
+        .modal { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            justify-content: center; align-items: center; z-index: 9999; padding: 16px;
+        }
+        .modal-content { 
+            background: var(--bg-card); padding: 24px; border-radius: var(--card-radius); 
+            width: 100%; max-width: 340px; border: 1px solid var(--border-color);
+        }
+        .modal h3 { font-size: 1.2rem; margin-bottom: 16px; font-weight: 800;}
+        .input-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+        .input-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;}
+        .modal input { 
+            background: var(--bg-screen); border: 1px solid var(--border-color);
+            padding: 14px; border-radius: var(--btn-radius); color: var(--text-main); font-size: 1.1rem; outline: none; font-weight: bold;
+        }
+        .modal-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+
+        /* Area Cetak Struk (Disembunyikan saat mode layar) */
+        #printArea { display: none; }
+
+        /* MEDIA QUERY: RESPONSIVITAS TABLET & PC/KOMPUTER */
+        @media (min-width: 768px) {
+            body { padding: 24px; }
+            .wrapper { max-width: 850px; }
+            .meter-box {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+            .screen:first-child { grid-column: span 2; }
+            .grid-info { grid-column: 1; }
+            #map { grid-column: 2; height: 100%; min-height: 240px; }
+            .btn-group { grid-column: span 2; }
+            #gpsStatusContainer { grid-column: span 2; }
+        }
+
+        /* CSS KHUSUS PRINT */
+        @media print {
+            body * { visibility: hidden; background: #fff !important; }
+            body { padding: 0; margin: 0; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea {
+                display: block; position: absolute; left: 0; top: 0; width: 100%; max-width: 300px; 
+                font-family: 'Courier New', Courier, monospace; color: #000; font-size: 12px; padding: 10px;
+            }
+            .print-header { text-align: center; margin-bottom: 15px; font-weight: bold; }
+            .print-header h2 { font-size: 16px; margin: 0; }
+            .print-line { border-top: 1px dashed #000; margin: 8px 0; }
+            .print-row { display: flex; justify-content: space-between; margin: 4px 0; }
+            .print-total { font-size: 16px; font-weight: bold; margin-top: 5px;}
+            .print-footer { text-align: center; font-size: 10px; margin-top: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="lockScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px;">
+    <div class="modal-content" style="box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 360px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width:70px; border-radius:50%; border: 2px solid var(--accent-blue); margin-bottom:10px;">
+            <h2 style="font-weight: 800; font-size: 1.3rem; text-transform: uppercase;">Akses Terkunci</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Driver Santai Kolaka</p>
+        </div>
+        <div class="input-group">
+            <label>Masukkan Password</label>
+            <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="appPassword" style="width: 100%; padding-right: 75px;" placeholder="Ketik sandi...">
+                <button type="button" id="btnTogglePass" onclick="togglePasswordInput()" style="position: absolute; right: 6px; padding: 6px 10px; font-size: 0.75rem; background: var(--bg-card); border: 1px solid var(--border-color); height: 80%; text-transform: none;">Lihat</button>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; margin: 12px 0 20px 0;">
+            <input type="checkbox" id="rememberPass" style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="rememberPass" style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); cursor: pointer;">Simpan password di perangkat</label>
+        </div>
+        <button type="button" onclick="verifyAppPassword()" style="width: 100%; background: var(--accent-blue); color: white; padding: 14px; font-weight: 800; border: none; box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);">Masuk Aplikasi</button>
+        <p id="loginError" style="color: var(--danger); font-size: 0.8rem; font-weight: 800; text-align: center; margin-top: 12px; display: none;">❌ Password Salah!</p>
+    </div>
+</div>
+
+<div class="wrapper">
+    <div class="community-header">
+        <div class="brand-box">
+            <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" alt="Logo" class="community-logo">
+            <div>
+                <h1 class="community-name">Driver Santai Kolaka</h1>
+                <span class="community-sub">Argometer GPS Premium</span>
+            </div>
+        </div>
+        <button class="menu-btn" onclick="toggleSidebar()">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+    </div>
+
+    <div class="meter-box">
+        <div class="screen">
+            <span class="label">Total Tarif (Rp)</span>
+            <div class="value" id="fareDisplay">0</div>
+        </div>
+        
+        <div class="grid-info">
+            <div class="screen">
+                <span class="label">Kecepatan (km/h)</span>
+                <div class="value" id="speedDisplay">0.0</div>
+            </div>
+            <div class="screen">
+                <span class="label">Jarak (km)</span>
+                <div class="value" id="distDisplay">0.00</div>
+            </div>
+            <div class="screen">
+                <span class="label">Waktu Jalan</span>
+                <div class="value" id="timeDisplay">0:00</div>
+            </div>
+            <div class="screen">
+                <span class="label">Waktu Tunggu</span>
+                <div class="value" id="waitDisplay">0:00</div>
+            </div>
+        </div>
+
+        <div id="map"></div>
+        
+        <div class="btn-group">
+            <button type="button" id="btnAction" onclick="toggleTrip()">Mulai Perjalanan</button>
+            <button type="button" id="btnReset" onclick="resetMeter()">Reset Argometer</button>
+            <button type="button" id="btnPrint" onclick="printReceipt()">🖨️ Cetak Struk Tagihan</button>
+        </div>
+        
+        <div id="gpsStatusContainer" class="status-bar">
+            <div class="gps-dot"></div>
+            <span id="gpsStatus">GPS: Menunggu Sinyal...</span>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebarMenu">
+    <div class="sidebar-header">
+        <span>Menu Opsi</span>
+        <span class="close-btn" onclick="toggleSidebar()">×</span>
+    </div>
+    <button type="button" onclick="openModal('settingsModal')">🔧 Pengaturan Tarif</button>
+    <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
+    <button type="button" onclick="logoutApplication()" style="background: var(--danger); color:#fff; border:none; margin-top: auto;">🚪 Keluar (Logout)</button>
+</div>
+
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h3>Pengaturan Tarif</h3>
+        <div class="input-group"><label>Tarif Awal (Rp)</label><input type="text" id="inAwal" onkeyup="formatInput(this)"></div>
+        <div class="input-group"><label>Tarif per KM (Rp)</label><input type="text" id="inKm" onkeyup="formatInput(this)"></div>
+        <div class="input-group"><label>Tarif Tunggu / Jam (Rp)</label><input type="text" id="inTunggu" onkeyup="formatInput(this)"></div>
+        <div class="modal-actions">
+            <button type="button" onclick="saveSettings()" style="background: var(--accent-green); color:#fff; font-weight:800; border: none; padding: 14px;">Simpan Perubahan</button>
+            <button type="button" onclick="closeModal('settingsModal')" style="padding: 14px;">Batal</button>
+        </div>
+    </div>
+</div>
+
+<div id="aboutModal" class="modal">
+    <div class="modal-content" style="text-align: center;">
+        <img src="https://i.ibb.co.com/DNbWt0C/file-00000000d67c7206bcdf0fef4eaf46cf.png" style="width:70px; border-radius:50%; margin-bottom:10px;">
+        <h3>Driver Santai Kolaka</h3>
+        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.5; margin-bottom: 20px;">
+            Aplikasi Argometer Pintar berbasis GPS.<br>
+            Sistem akurasi tinggi (Filter > 25m) anti loncat.<br><br>
+            Dikembangkan Oleh:<br>
+            <strong>Andi Farid Aris</strong>
+        </p>
+        <button type="button" onclick="closeModal('aboutModal')" style="padding: 14px; width: 100%;">Tutup</button>
+    </div>
+</div>
+
+<div id="printArea">
+    <div class="print-header">
+        <h2>DRIVER SANTAI KOLAKA</h2>
+        <div id="p-date"></div>
+    </div>
+    <div class="print-line"></div>
+    <div class="print-row"><span>Tarif Awal:</span> <span id="p-awal"></span></div>
+    <div class="print-row"><span>Tarif per KM:</span> <span id="p-km"></span></div>
+    <div class="print-line"></div>
+    <div class="print-row"><span>Jarak Tempuh:</span> <span id="p-dist"></span></div>
+    <div class="print-row"><span>Waktu Jalan:</span> <span id="p-time"></span></div>
+    <div class="print-row"><span>Waktu Tunggu:</span> <span id="p-wait"></span></div>
+    <div class="print-line"></div>
+    <div class="print-row print-total"><span>TOTAL BIAYA:</span> <span id="p-total"></span></div>
+    <div class="print-line"></div>
+    <div class="print-footer">
+        Terima kasih telah menggunakan jasa kami.<br>
+        Utamakan Keselamatan di Jalan!
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const PASSWORD_SISTEM = "kolaka"; // Silakan ganti kata dalam tanda petik jika ingin mengubah password utama
+    let wakeLockObj = null;
+
+    let TARIF_AWAL = parseInt(localStorage.getItem('set_awal')) || 9000;
+    let TARIF_PER_KM = parseInt(localStorage.getItem('set_km')) || 6500;
+    let TARIF_TUNGGU_PER_JAM = parseInt(localStorage.getItem('set_tunggu')) || 60000;
+
+    let watchId = null, waitTimer = null, tripTimer = null, isWaiting = false, lastCoords = null;
+    let totalDistance = parseFloat(localStorage.getItem('taxi_dist')) || 0;
+    let totalFare = parseFloat(localStorage.getItem('taxi_fare')) || 0;
+    let waitSeconds = parseInt(localStorage.getItem('taxi_wait')) || 0;
+    let tripSeconds = parseInt(localStorage.getItem('taxi_trip_time')) || 0;
+
+    let map, pathLine, carMarker;
+
+    window.onload = () => {
+        // Cek Verifikasi Login Password
+        if (localStorage.getItem('taxi_remember_login') === 'true') {
+            document.getElementById('lockScreen').style.display = 'none';
+        }
+
+        document.getElementById('inAwal').value = TARIF_AWAL.toLocaleString('id-ID');
+        document.getElementById('inKm').value = TARIF_PER_KM.toLocaleString('id-ID');
+        document.getElementById('inTunggu').value = TARIF_TUNGGU_PER_JAM.toLocaleString('id-ID');
+        
+        initMap();
+        updateUI();
+    };
+
+    /* KONTROL SISTEM KEAMANAN PASSWORD */
+    function togglePasswordInput() {
+        const field = document.getElementById('appPassword');
+        const btn = document.getElementById('btnTogglePass');
+        if(field.type === 'password') {
+            field.type = 'text';
+            btn.innerText = 'Sembunyi';
+        } else {
+            field.type = 'password';
+            btn.innerText = 'Lihat';
+        }
+    }
+
+    function verifyAppPassword() {
+        const inputPass = document.getElementById('appPassword').value;
+        const errHint = document.getElementById('loginError');
+        const isChecked = document.getElementById('rememberPass').checked;
+
+        if (inputPass === PASSWORD_SISTEM) {
+            errHint.style.display = 'none';
+            if (isChecked) {
+                localStorage.setItem('taxi_remember_login', 'true');
+            }
+            document.getElementById('lockScreen').style.display = 'none';
+        } else {
+            errHint.style.display = 'block';
+        }
+    }
+
+    function logoutApplication() {
+        if (confirm("Apakah Anda yakin ingin keluar (Logout) dan mengunci aplikasi kembali?")) {
+            localStorage.removeItem('taxi_remember_login');
+            location.reload();
+        }
+    }
+
+    /* KONTROL LAYAR TETAP MENYALA (WAKE LOCK API) */
+    async function activateWakeLock() {
+        if ('wakeLock' in navigator) {
+            try {
+                wakeLockObj = await navigator.wakeLock.request('screen');
+            } catch (err) {
+                console.log("Wake Lock Gagal Aktif: " + err.message);
+            }
+        }
+    }
+
+    function deactivateWakeLock() {
+        if (wakeLockObj !== null) {
+            wakeLockObj.release();
+            wakeLockObj = null;
+        }
+    }
+
+    // Ambil kembali kunci jika aplikasi sempat diminimalkan lalu dibuka kembali
+    document.addEventListener('visibilitychange', async () => {
+        if (wakeLockObj !== null && document.visibilityState === 'visible') {
+            await activateWakeLock();
+        }
+    });
+
+    function initMap() {
+        map = L.map('map', { zoomControl: false }).setView([-4.05, 121.6], 15);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+        
+        pathLine = L.polyline([], {color: '#00b853', weight: 6, opacity: 0.8}).addTo(map);
+        
+        const navArrowIcon = L.divIcon({
+            className: 'nav-icon-wrapper',
+            html: `
+                <div id="navArrow" style="width: 32px; height: 32px; transform-origin: center; transition: transform 0.4s ease-out; display: flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 24 24" fill="#4285F4" stroke="#ffffff" stroke-width="2" style="width: 100%; height: 100%; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.4));">
+                        <path d="M12 2L2 22l10-4 10 4L12 2z"/>
+                    </svg>
+                </div>
+            `,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        carMarker = L.marker([-4.05, 121.6], {icon: navArrowIcon}).addTo(map);
+    }
+
+    /* Kontrol UI Menu & Modals */
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const overlay = document.getElementById('sidebarOverlay');
+        const isActive = sidebar.classList.contains('active');
+        if(isActive) {
+            sidebar.classList.remove('active');
+            overlay.style.display = 'none';
+        } else {
+            sidebar.classList.add('active');
+            overlay.style.display = 'block';
+        }
+    }
+
+    function openModal(id) { 
+        toggleSidebar(); 
+        document.getElementById(id).style.display = 'flex'; 
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function formatInput(el) {
+        let val = el.value.replace(/\./g, '');
+        if (!isNaN(val)) el.value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function saveSettings() {
+        TARIF_AWAL = parseInt(document.getElementById('inAwal').value.replace(/\./g, '')) || 0;
+        TARIF_PER_KM = parseInt(document.getElementById('inKm').value.replace(/\./g, '')) || 0;
+        TARIF_TUNGGU_PER_JAM = parseInt(document.getElementById('inTunggu').value.replace(/\./g, '')) || 0;
+        localStorage.setItem('set_awal', TARIF_AWAL);
+        localStorage.setItem('set_km', TARIF_PER_KM);
+        localStorage.setItem('set_tunggu', TARIF_TUNGGU_PER_JAM);
+        alert("Tarif Berhasil Diperbarui!");
+        closeModal('settingsModal');
+    }
+
+    function updateUI() {
+        document.getElementById('fareDisplay').innerText = Math.floor(totalFare).toLocaleString('id-ID');
+        document.getElementById('distDisplay').innerText = totalDistance.toFixed(2);
+        
+        let wm = Math.floor(waitSeconds / 60), ws = waitSeconds % 60;
+        document.getElementById('waitDisplay').innerText = `${wm}:${ws < 10 ? '0'+ws : ws}`;
+
+        let tm = Math.floor(tripSeconds / 60), ts = tripSeconds % 60;
+        document.getElementById('timeDisplay').innerText = `${tm}:${ts < 10 ? '0'+ts : ts}`;
+
+        localStorage.setItem('taxi_dist', totalDistance);
+        localStorage.setItem('taxi_fare', totalFare);
+        localStorage.setItem('taxi_wait', waitSeconds);
+        localStorage.setItem('taxi_trip_time', tripSeconds);
+    }
+
+    function calculateBearing(lat1, lon1, lat2, lon2) {
+        const toRad = deg => deg * Math.PI / 180;
+        const toDeg = rad => rad * 180 / Math.PI;
+        const dLon = toRad(lon2 - lon1);
+        const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+        const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+        return (toDeg(Math.atan2(y, x)) + 360) % 360;
+    }
+
+    function toggleTrip() {
+        const btn = document.getElementById('btnAction');
+        const statusBar = document.getElementById('gpsStatusContainer');
+        
+        if (watchId === null) {
+            startTrip();
+            activateWakeLock(); // Mengunci layar agar tetap menyala saat jalan
+            btn.classList.add('running');
+            btn.innerText = "Akhiri Perjalanan";
+            statusBar.classList.add('gps-active');
+        } else {
+            stopTrip();
+            deactivateWakeLock(); // Melepas kunci layar
+            btn.classList.remove('running');
+            btn.innerText = "Lanjut Perjalanan";
+            statusBar.classList.remove('gps-active');
+            document.getElementById('gpsStatus').innerText = "GPS: Terhenti";
+            document.getElementById('speedDisplay').innerText = "0.0";
+        }
+    }
+
+    function startTrip() {
+        if (totalFare === 0) totalFare = parseFloat(TARIF_AWAL);
+        
+        tripTimer = setInterval(() => {
+            tripSeconds++;
+            updateUI();
+        }, 1000);
+
+        if (navigator.geolocation) {
+            watchId = navigator.geolocation.watchPosition((pos) => {
+                const { latitude, longitude, speed, heading, accuracy } = pos.coords;
+                
+                if (accuracy > 25) {
+                    document.getElementById('gpsStatus').innerText = `Mencari Sinyal Kuat... (${Math.floor(accuracy)}m)`;
+                    return; 
+                }
+
+                let liveSpeed = speed && speed > 0 ? (speed * 3.6) : 0;
+                document.getElementById('speedDisplay').innerText = liveSpeed.toFixed(1);
+                document.getElementById('gpsStatus').innerText = `GPS Stabil (Akurasi ${Math.floor(accuracy)}m)`;
+                
+                let currentPos = [latitude, longitude];
+                carMarker.setLatLng(currentPos);
+                pathLine.addLatLng(currentPos);
+                map.panTo(currentPos);
+
+                let finalHeading = heading;
+                if (finalHeading === null || isNaN(finalHeading)) {
+                    if (lastCoords) finalHeading = calculateBearing(lastCoords.lat, lastCoords.lon, latitude, longitude);
+                    else finalHeading = 0;
+                }
+
+                const arrowEl = document.getElementById('navArrow');
+                if(arrowEl) arrowEl.style.transform = `rotate(${finalHeading}deg)`;
+
+                if (lastCoords) {
+                    const d = calculateDistance(lastCoords.lat, lastCoords.lon, latitude, longitude);
+                    if (d > 0.004 && liveSpeed > 2) { 
+                        totalDistance += d;
+                        totalFare += d * TARIF_PER_KM;
+                        stopWaitTimer();
+                    } else { 
+                        startWaitTimer(); 
+                    }
+                }
+                lastCoords = { lat: latitude, lon: longitude };
+                updateUI();
+            }, (err) => { 
+                document.getElementById('gpsStatus').innerText = "Mohon Aktifkan GPS Mode Akurasi Tinggi"; 
+            }, { 
+                enableHighAccuracy: true, 
+                maximumAge: 0, 
+                timeout: 10000 
+            });
+        }
+    }
+
+    function startWaitTimer() {
+        if (!isWaiting) {
+            isWaiting = true;
+            waitTimer = setInterval(() => {
+                waitSeconds++;
+                totalFare += (TARIF_TUNGGU_PER_JAM / 3600);
+                updateUI();
+            }, 1000);
+        }
+    }
+
+    function stopWaitTimer() { isWaiting = false; clearInterval(waitTimer); }
+    
+    function stopTrip() { 
+        navigator.geolocation.clearWatch(watchId); 
+        watchId = null; 
+        stopWaitTimer(); 
+        clearInterval(tripTimer);
+        lastCoords = null; 
+    }
+
+    function resetMeter() {
+        if(confirm("Apakah Anda yakin ingin MENGHAPUS semua data perjalanan ini?")) {
+            stopTrip();
+            deactivateWakeLock();
+            totalDistance = totalFare = waitSeconds = tripSeconds = 0;
+            localStorage.removeItem('taxi_dist');
+            localStorage.removeItem('taxi_fare');
+            localStorage.removeItem('taxi_wait');
+            localStorage.removeItem('taxi_trip_time');
+            
+            document.getElementById('btnAction').classList.remove('running');
+            document.getElementById('btnAction').innerText = "Mulai Perjalanan";
+            document.getElementById('speedDisplay').innerText = "0.0";
+            document.getElementById('gpsStatusContainer').classList.remove('gps-active');
+            document.getElementById('gpsStatus').innerText = "GPS: Menunggu...";
+            pathLine.setLatLngs([]);
+            
+            const arrowEl = document.getElementById('navArrow');
+            if(arrowEl) arrowEl.style.transform = `rotate(0deg)`;
+            
+            updateUI();
+        }
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function printReceipt() {
+        const now = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+        document.getElementById('p-date').innerText = "Waktu: " + now;
+        document.getElementById('p-awal').innerText = "Rp " + TARIF_AWAL.toLocaleString('id-ID');
+        document.getElementById('p-km').innerText = "Rp " + TARIF_PER_KM.toLocaleString('id-ID');
+        document.getElementById('p-dist').innerText = document.getElementById('distDisplay').innerText + " KM";
+        document.getElementById('p-time').innerText = document.getElementById('timeDisplay').innerText;
+        document.getElementById('p-wait').innerText = document.getElementById('waitDisplay').innerText;
+        document.getElementById('p-total').innerText = "Rp " + document.getElementById('fareDisplay').innerText;
+
+        window.print();
+    }
+</script>
+</body>
+</html>
