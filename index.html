@@ -559,8 +559,10 @@
     }
 
     function updateUI() {
-        // Logika update UI tarif per 5 detik
-        if (tripSeconds % 5 === 0 || totalDistance === 0 || watchId === null) {
+        // PERBAIKAN: Update layar tarif HANYA tiap kelipatan 5 detik, 
+        // atau saat awal trip dimulai (<2 detik), atau saat sedang tidak jalan (watchId null).
+        // Hitungan totalFare tetap 100% jalan secara presisi di background.
+        if (tripSeconds % 5 === 0 || watchId === null || tripSeconds < 2) {
             document.getElementById('fareDisplay').innerText = Math.floor(totalFare).toLocaleString('id-ID');
         }
         
@@ -654,10 +656,12 @@
                 if (lastCoords) {
                     const d = calculateDistance(lastCoords.lat, lastCoords.lon, latitude, longitude);
                     
-                    // Jarak tetap dihitung jika jalan
+                    // PERBAIKAN BUG GPS: Hanya reset "lastCoords" JIKA jaraknya sudah lebih dari 5 meter. 
+                    // Hal ini mencegah error "jarak terbuang" saat berjalan perlahan di mana jarak (d) selalu terhitung terlalu kecil dan ter-reset terus ke nol.
                     if (d > 0.005) { 
                         totalDistance += d;
                         totalFare += d * TARIF_PER_KM;
+                        lastCoords = { lat: latitude, lon: longitude };
                     }
                     
                     // Logika waktu tunggu berdasarkan batas kecepatan dari pengaturan
@@ -666,8 +670,9 @@
                     } else { 
                         stopWaitTimer(); 
                     }
+                } else {
+                    lastCoords = { lat: latitude, lon: longitude };
                 }
-                lastCoords = { lat: latitude, lon: longitude };
                 updateUI();
             }, (err) => { 
                 document.getElementById('gpsStatus').innerText = "Mohon Aktifkan GPS Mode Akurasi Tinggi"; 
