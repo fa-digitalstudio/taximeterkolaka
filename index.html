@@ -414,6 +414,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     let wakeLockObj = null;
+    // Tambahan: Variabel untuk background
+    let originalTitle = document.title;
+    let backgroundInterval = null;
 
     let TARIF_AWAL = parseInt(localStorage.getItem('set_awal')) || 9000;
     let TARIF_PER_KM = parseInt(localStorage.getItem('set_km')) || 6500;
@@ -437,6 +440,7 @@
         
         initMap();
         updateUI();
+        initBackgroundMode(); // Inisialisasi fitur latar belakang
     };
 
     /* KONTROL LAYAR TETAP MENYALA (WAKE LOCK API) */
@@ -461,7 +465,47 @@
         if (wakeLockObj !== null && document.visibilityState === 'visible') {
             await activateWakeLock();
         }
+        // Tambahan: Perbarui UI saat kembali ke aplikasi
+        if (document.visibilityState === 'visible') {
+            updateUI();
+            document.title = originalTitle;
+        }
     });
+
+    // ==============================================
+    // ✨ TAMBAHAN: FITUR BERJALAN DI LATAR BELAKANG
+    // ==============================================
+    function initBackgroundMode() {
+        // Simpan data secara berkala meskipun layar mati
+        backgroundInterval = setInterval(() => {
+            if (watchId !== null) { // Hanya jika perjalanan aktif
+                // Simpan data terbaru
+                localStorage.setItem('taxi_dist', totalDistance);
+                localStorage.setItem('taxi_fare', totalFare);
+                localStorage.setItem('taxi_wait', waitSeconds);
+                localStorage.setItem('taxi_trip_time', tripSeconds);
+                
+                // Tampilkan tarif di judul tab saat di latar belakang
+                if (document.visibilityState === 'hidden') {
+                    document.title = `Rp ${Math.floor(totalFare).toLocaleString('id-ID')} | Taxi Meter`;
+                }
+            }
+        }, 3000); // Simpan setiap 3 detik
+    }
+
+    // Perbaiki pengaturan GPS agar tetap berjalan di latar belakang
+    function getGeolocationOptions() {
+        return {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 30000,
+            // Tambahan: Tetap berjalan meskipun aplikasi di latar belakang
+            background: true
+        };
+    }
+    // ==============================================
+    // AKHIR TAMBAHAN FITUR
+    // ==============================================
 
     function initMap() {
         // Mengubah zoomControl menjadi true agar muncul icon + dan - di map
@@ -676,11 +720,7 @@
                 updateUI();
             }, (err) => { 
                 document.getElementById('gpsStatus').innerText = "Mohon Aktifkan GPS Mode Akurasi Tinggi"; 
-            }, { 
-                enableHighAccuracy: true, 
-                maximumAge: 0, 
-                timeout: 10000 
-            });
+            }, getGeolocationOptions()); // Gunakan opsi GPS yang sudah diperbarui
         }
     }
 
