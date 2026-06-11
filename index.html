@@ -3,14 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Taxi Meter - Driver Santai Kolaka</title>
+    <title>Taxi Meter - Driver Kolaka</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Font pengganti jika Google Font tidak bisa diakses -->
+    <style>
+        @font-face {
+            font-family: 'Plus Jakarta Sans';
+            font-style: normal;
+            font-weight: 600;
+            font-display: swap;
+            src: local('Segoe UI'), local('Roboto'), sans-serif;
+        }
+        @font-face {
+            font-family: 'Plus Jakarta Sans';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: local('Segoe UI Bold'), local('Roboto Bold'), sans-serif;
+        }
+        @font-face {
+            font-family: 'Plus Jakarta Sans';
+            font-style: normal;
+            font-weight: 800;
+            font-display: swap;
+            src: local('Segoe UI Bold'), local('Roboto Bold'), sans-serif;
+        }
+        @font-face {
+            font-family: 'Share Tech Mono';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: local('Courier New'), monospace;
+        }
+    </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Pengaturan agar Chrome mengizinkan latar belakang -->
     <meta name="background-mode" content="location">
     <meta name="theme-color" content="#00b853">
     <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVGF4aSBNZXRlciIsInN0YXJ0VXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZCI6IiMwMGI4NTMiLCJ0aGVtZUNvbG9yIjoiIzAwYjg1MyJ9">
@@ -146,6 +175,7 @@
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px);
             justify-content: center; align-items: center; z-index: 9999; padding: 16px;
+            overflow-y: auto;
         }
 
         .modal-content { 
@@ -191,6 +221,50 @@
         }
 
         #printArea { display: none; }
+
+        /* Gaya Log Riwayat */
+        .log-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-screen);
+        }
+        .log-item {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            background: white;
+        }
+        .log-item:last-child { border-bottom: none; }
+        .log-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .log-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+        .log-fare {
+            font-weight: bold;
+            color: var(--accent-green);
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+        .log-empty {
+            padding: 30px 15px;
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .btn-clear-log {
+            background: var(--danger);
+            color: white;
+            margin-top: 10px;
+        }
 
         @media (min-width: 768px) {
             body { padding: 24px; }
@@ -287,6 +361,7 @@
         <span class="close-btn" onclick="toggleSidebar()">×</span>
     </div>
     <button type="button" onclick="openModal('settingsModal')">🔧 Pengaturan Tarif</button>
+    <button type="button" onclick="openModal('logModal')">📋 Riwayat Perjalanan</button>
     <button type="button" onclick="openModal('donationModal')">💰 Donasi / Dukungan</button>
     <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
 </div>
@@ -301,6 +376,20 @@
         <div class="modal-actions">
             <button type="button" class="btn-premium-success" onclick="saveSettings()">Simpan Perubahan</button>
             <button type="button" class="btn-premium-secondary" onclick="closeModal('settingsModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Log Riwayat -->
+<div id="logModal" class="modal">
+    <div class="modal-content">
+        <h3>📋 Riwayat Perjalanan</h3>
+        <div id="logContent" class="log-container">
+            <div class="log-empty">Belum ada data perjalanan tersimpan</div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-clear-log" onclick="clearAllLog()">Hapus Semua Riwayat</button>
+            <button type="button" class="btn-premium-secondary" onclick="closeModal('logModal')">Tutup</button>
         </div>
     </div>
 </div>
@@ -456,19 +545,15 @@
         }
     });
 
-    // ✅ Perbaikan utama agar tetap berjalan di latar belakang
     function initBackgroundMode() {
-        // Simpan data dan jaga agar tidak terhenti
         keepAliveInterval = setInterval(() => {
             if (watchId === null) return;
 
-            // Simpan data secara terus-menerus
             localStorage.setItem('taxi_dist', totalDistance.toFixed(4));
             localStorage.setItem('taxi_fare', totalFare.toFixed(2));
             localStorage.setItem('taxi_wait', waitSeconds);
             localStorage.setItem('taxi_trip_time', tripSeconds);
 
-            // Ubah judul saat di latar belakang
             if (document.visibilityState === 'hidden') {
                 document.title = `Rp ${Math.floor(totalFare).toLocaleString('id-ID')} | Aktif`;
             }
@@ -476,7 +561,6 @@
             updateUI();
         }, 1000);
 
-        // Perbarui posisi GPS secara paksa setiap 10 detik
         setInterval(() => {
             if (watchId !== null && navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(() => {}, () => {}, getGeolocationOptions());
@@ -542,7 +626,15 @@
         else { sidebar.classList.add('active'); overlay.style.display = 'block'; }
     }
 
-    function openModal(id) { toggleSidebar(); document.getElementById(id).style.display = 'flex'; }
+    function openModal(id) { 
+        toggleSidebar(); 
+        const modal = document.getElementById(id);
+        modal.style.display = 'flex';
+        
+        if (id === 'logModal') {
+            renderLogData();
+        }
+    }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     function formatInput(el) {
@@ -600,6 +692,7 @@
         } else {
             stopTrip();
             deactivateWakeLock();
+            saveTripToLog();
             btn.classList.remove('running');
             btn.innerText = "Lanjut Perjalanan";
             statusBar.classList.remove('gps-active');
@@ -710,6 +803,7 @@
         closeModal('resetModal');
         stopTrip();
         deactivateWakeLock();
+        saveTripToLog();
         totalDistance = totalFare = waitSeconds = tripSeconds = 0;
         localStorage.removeItem('taxi_dist');
         localStorage.removeItem('taxi_fare');
@@ -749,7 +843,62 @@
 
         window.print();
     }
+
+    // Fungsi Log Riwayat Lengkap
+    function saveTripToLog() {
+        if (totalDistance > 0.01 || totalFare > TARIF_AWAL) {
+            const logData = {
+                date: new Date().toLocaleString('id-ID'),
+                distance: totalDistance.toFixed(2),
+                time: document.getElementById('timeDisplay').innerText,
+                wait: document.getElementById('waitDisplay').innerText,
+                fare: Math.floor(totalFare),
+                tarifAwal: TARIF_AWAL,
+                tarifKm: TARIF_PER_KM
+            };
+
+            let tripLog = JSON.parse(localStorage.getItem('taxi_trip_log')) || [];
+            tripLog.unshift(logData);
+            if (tripLog.length > 50) tripLog.pop();
+            localStorage.setItem('taxi_trip_log', JSON.stringify(tripLog));
+        }
+    }
+
+    function renderLogData() {
+        const logContainer = document.getElementById('logContent');
+        const tripLog = JSON.parse(localStorage.getItem('taxi_trip_log')) || [];
+
+        if (tripLog.length === 0) {
+            logContainer.innerHTML = `<div class="log-empty">Belum ada data perjalanan tersimpan</div>`;
+            return;
+        }
+
+        let html = '';
+        tripLog.forEach(item => {
+            html += `
+                <div class="log-item">
+                    <div class="log-date">📅 ${item.date}</div>
+                    <div class="log-details">
+                        <span>🛣️ Jarak: ${item.distance} km</span>
+                        <span>⏱️ Jalan: ${item.time}</span>
+                        <span>⌛ Tunggu: ${item.wait}</span>
+                        <span>💵 Tarif/km: Rp ${item.tarifKm.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="log-fare">TOTAL: Rp ${item.fare.toLocaleString('id-ID')}</div>
+                </div>
+            `;
+        });
+
+        logContainer.innerHTML = html;
+    }
+
+    function clearAllLog() {
+        if (confirm('Yakin ingin menghapus SEMUA riwayat perjalanan? Tindakan ini tidak bisa dibatalkan!')) {
+            localStorage.removeItem('taxi_trip_log');
+            renderLogData();
+            showAlert('Berhasil', 'Semua riwayat telah dihapus');
+        }
+    }
 </script>
 </body>
 </html>
-
