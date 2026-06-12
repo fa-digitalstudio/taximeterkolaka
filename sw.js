@@ -5,7 +5,7 @@ const APP_SHELL = [
     './',
     './index.html',
     './manifest.json',
-    './1781169139708.png', // Pastikan file logo.png benar-benar ada di GitHub Anda
+    './logo.png', // Pastikan file logo.png benar-benar ada di GitHub Anda
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
