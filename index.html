@@ -42,7 +42,14 @@
 
     <meta name="background-mode" content="location">
     <meta name="theme-color" content="#00b853">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVGF4aSBNZXRlciIsInN0YXJ0VXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZCI6IiMwMGI4NTMiLCJ0aGVtZUNvbG9yIjoiIzAwYjg1MyJ9">
+    
+    <!-- ====== MULAI: PENAMBAHAN META TAG PWA ====== -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Taxi Meter">
+    <link rel="apple-touch-icon" href="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png">
+    <!-- ====== SELESAI: PENAMBAHAN META TAG PWA ====== -->
     
     <style>
         :root {
@@ -900,5 +907,17 @@
         }
     }
 </script>
+
+<!-- ====== MULAI: SCRIPT SERVICE WORKER PWA ====== -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('PWA Service Worker terdaftar!'))
+                .catch(error => console.log('Registrasi PWA Service Worker gagal:', error));
+        });
+    }
+</script>
+<!-- ====== SELESAI: SCRIPT SERVICE WORKER PWA ====== -->
 </body>
 </html>
