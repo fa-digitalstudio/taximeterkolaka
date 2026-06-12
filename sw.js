@@ -6,7 +6,7 @@ self.addEventListener('install', event => {
             return cache.addAll([
                 './index.html',
                 './manifest.json',
-                './logo.png',
+                'https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png',
                 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
                 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
             ]);
