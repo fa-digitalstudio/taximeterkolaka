@@ -7,6 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Font pengganti jika Google Font tidak bisa diakses -->
     <style>
         @font-face {
             font-family: 'Plus Jakarta Sans';
@@ -42,11 +43,13 @@
     <meta name="background-mode" content="location">
     <meta name="theme-color" content="#00b853">
     
+    <!-- ====== MULAI: PENAMBAHAN META TAG PWA ====== -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Taxi Meter">
     <link rel="apple-touch-icon" href="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png">
+    <!-- ====== SELESAI: PENAMBAHAN META TAG PWA ====== -->
     
     <style>
         :root {
@@ -226,14 +229,6 @@
 
         #printArea { display: none; }
 
-        /* PWA Banner */
-        .pwa-banner { 
-            display: none; position: fixed; bottom: 20px; left: 10px; right: 10px; 
-            background: #fff; padding: 16px; border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 9998; 
-            border: 2px solid var(--accent-green); text-align: center;
-        }
-
         /* Gaya Log Riwayat */
         .log-container {
             max-height: 60vh;
@@ -378,7 +373,6 @@
     <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
 </div>
 
-<!-- Modal-modal lainnya ... -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
         <h3>Pengaturan Tarif</h3>
@@ -393,6 +387,7 @@
     </div>
 </div>
 
+<!-- Modal Log Riwayat -->
 <div id="logModal" class="modal">
     <div class="modal-content">
         <h3>📋 Riwayat Perjalanan</h3>
@@ -491,36 +486,8 @@
     </div>
 </div>
 
-<!-- Banner Install PWA -->
-<div id="pwa-install-banner" class="pwa-banner">
-    <p style="font-size: 0.9rem; font-weight: 700; margin-bottom: 12px;">Ingin akses lebih cepat? Install aplikasi ini ke HP Anda!</p>
-    <button type="button" id="btn-install" class="btn-premium-success">Install Aplikasi</button>
-</div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Logic PWA Install
-    let deferredPrompt;
-    const installBanner = document.getElementById('pwa-install-banner');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBanner.style.display = 'block';
-    });
-    document.getElementById('btn-install').addEventListener('click', (e) => {
-        installBanner.style.display = 'none';
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                deferredPrompt = null;
-            });
-        }
-    });
-    window.addEventListener('appinstalled', (evt) => {
-        installBanner.style.display = 'none';
-    });
-
-    // --- Script Aplikasi Asli ---
     let wakeLockObj = null;
     let originalTitle = document.title;
     let keepAliveInterval = null;
@@ -884,6 +851,7 @@
         window.print();
     }
 
+    // Fungsi Log Riwayat Lengkap
     function saveTripToLog() {
         if (totalDistance > 0.01 || totalFare > TARIF_AWAL) {
             const logData = {
@@ -940,6 +908,7 @@
     }
 </script>
 
+<!-- ====== MULAI: SCRIPT SERVICE WORKER PWA ====== -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -949,5 +918,6 @@
         });
     }
 </script>
+<!-- ====== SELESAI: SCRIPT SERVICE WORKER PWA ====== -->
 </body>
 </html>
