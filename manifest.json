@@ -1,0 +1,23 @@
+{
+  "name": "Taxi Meter - Driver Kolaka",
+  "short_name": "Taxi Meter",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eef2f6",
+  "theme_color": "#00b853",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
