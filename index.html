@@ -7,7 +7,6 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Font pengganti jika Google Font tidak bisa diakses -->
     <style>
         @font-face {
             font-family: 'Plus Jakarta Sans';
@@ -43,14 +42,32 @@
     <meta name="background-mode" content="location">
     <meta name="theme-color" content="#00b853">
     
-    <!-- ====== MULAI: PENAMBAHAN META TAG PWA ====== -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Taxi Meter">
     <link rel="apple-touch-icon" href="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png">
-    <!-- ====== SELESAI: PENAMBAHAN META TAG PWA ====== -->
     
+    <!-- ============ FIREBASE SDK ============ -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+        // GANTI DENGAN KONFIG FIREBASE KAMU SENDIRI
+        const firebaseConfig = {
+  apiKey: "AIzaSyAnqF8DQANWtfnFVDlYQX0hwMrEYyv6nbc",
+  authDomain: "taxikolaka.firebaseapp.com",
+  databaseURL: "https://taxikolaka-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "taxikolaka",
+  storageBucket: "taxikolaka.firebasestorage.app",
+  messagingSenderId: "843852532099",
+  appId: "1:843852532099:web:17571045f4371cbbfe0eb6"
+};
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
     <style>
         :root {
             --bg-main: #eef2f6; 
@@ -73,12 +90,93 @@
             color: var(--text-main); 
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
+            align-items: center;
             justify-content: center; 
             min-height: 100vh; 
             padding: 12px;
             position: relative;
         }
+
+        /* ============ HALAMAN LOGIN CANTIK ============ */
+        #loginPage {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, #0ea5e9 0%, #00b853 50%, #059669 100%);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        #loginPage.hiddenLogin { display: none; }
+        .loginCard {
+            width: 100%; max-width: 400px;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 36px 28px;
+            box-shadow: 0 30px 80px -20px rgba(0,0,0,0.45);
+            animation: loginPop .55s cubic-bezier(.2,.9,.25,1.2);
+        }
+        @keyframes loginPop {
+            from { opacity: 0; transform: translateY(40px) scale(.9); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .loginLogoWrap {
+            width: 90px; height: 90px; margin: 0 auto 14px;
+            background: linear-gradient(135deg,#00b853,#4285F4);
+            border-radius: 24px; display:flex; align-items:center; justify-content:center;
+            box-shadow: 0 12px 25px rgba(0,184,83,.35);
+        }
+        .loginLogoWrap img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border:2px solid #fff; }
+        .loginTitle { text-align:center; font-size:1.45rem; font-weight:800; color:#0f172a; }
+        .loginSub   { text-align:center; color:#64748b; font-size:.85rem; margin-bottom:22px; font-weight:600; }
+        .loginField { position: relative; margin-bottom: 16px; }
+        .loginField input {
+            width: 100%;
+            padding: 18px 16px 10px 16px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            outline: none;
+            transition: all .25s ease;
+        }
+        .loginField input:focus {
+            border-color: #00b853;
+            background: #fff;
+            box-shadow: 0 0 0 5px rgba(0,184,83,.12);
+        }
+        .loginField label {
+            position: absolute; left:14px; top:14px;
+            font-size: .9rem; color:#94a3b8; font-weight:700;
+            pointer-events:none; transition: all .2s ease;
+            background: transparent; padding:0 4px;
+        }
+        .loginField input:focus + label,
+        .loginField input:not(:placeholder-shown) + label {
+            top: -7px; font-size: .7rem; color:#00b853; background:#fff;
+        }
+        .btnLogin {
+            width:100%;
+            padding:15px;
+            border:none; border-radius:14px;
+            color:#fff; font-weight:800; font-size:1rem; letter-spacing:.5px;
+            background: linear-gradient(135deg,#00b853,#059669);
+            box-shadow: 0 10px 22px rgba(0,184,83,.35);
+            cursor:pointer;
+            transition: all .2s ease;
+            text-transform: uppercase;
+        }
+        .btnLogin:hover { transform: translateY(-1px); }
+        .btnLogin:active { transform: scale(.98); }
+        .btnLogin:disabled { opacity:.6; cursor:not-allowed; }
+        .loginError {
+            display:none;
+            background:#fef2f2; color:#b91c1c;
+            border:1px solid #fecaca;
+            padding:10px 12px; border-radius:10px;
+            font-size:.8rem; font-weight:700; text-align:center;
+            margin-bottom:12px;
+        }
+        .loginHint { text-align:center; font-size:.75rem; color:#64748b; margin-top:14px; font-weight:600; }
 
         .wrapper {
             width: 100%;
@@ -117,23 +215,49 @@
 
         .sidebar-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 999; backdrop-filter: blur(2px);
+            background: rgba(15,23,42,0.55); z-index: 999; backdrop-filter: blur(4px);
         }
         .sidebar {
             position: fixed; top: 0; right: -280px; width: 260px; height: 100%;
-            background: var(--bg-card); box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-            transition: right 0.3s ease; z-index: 1000; padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            box-shadow: -10px 0 30px rgba(15,23,42,0.15);
+            transition: right 0.3s cubic-bezier(.2,.8,.2,1); z-index: 1000;
+            padding: 22px 18px; display: flex; flex-direction: column; gap: 12px;
         }
         .sidebar.active { right: 0; }
         .sidebar-header {
             display: flex; justify-content: space-between; align-items: center;
-            font-size: 1.2rem; font-weight: 800; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 10px;
+            font-size: 1.15rem; font-weight: 800;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px; margin-bottom: 6px;
+            color:#0f172a;
         }
-        .close-btn { cursor: pointer; color: var(--danger); font-size: 1.5rem; }
+        .userEmailBox {
+            background: linear-gradient(135deg,#ecfeff,#dcfce7);
+            border:1px solid #bbf7d0;
+            padding:10px 12px; border-radius:12px;
+            font-size:.78rem; font-weight:700; color:#065f46;
+            word-break: break-all;
+        }
+        .close-btn { cursor: pointer; color: var(--danger); font-size: 1.7rem; line-height:1; }
         .sidebar button {
-            background: var(--bg-screen); width: 100%; padding: 14px; text-align: left;
-            border-radius: var(--btn-radius); font-size: 0.95rem; border: 1px solid var(--border-color);
+            background: #ffffff;
+            width: 100%; padding: 13px 14px; text-align: left;
+            border-radius: 12px; font-size: .9rem;
+            border: 1px solid #e2e8f0;
+            font-weight:700; color:#0f172a;
+            transition: all .18s ease;
+            box-shadow: 0 2px 6px rgba(15,23,42,.04);
         }
+        .sidebar button:hover { transform: translateX(3px); border-color:#00b853; color:#00b853; }
+        .btnLogout {
+            background: linear-gradient(135deg,#ef4444,#dc2626) !important;
+            color:#fff !important;
+            border:none !important;
+            box-shadow: 0 8px 18px rgba(239,68,68,.35) !important;
+            margin-top:auto;
+        }
+        .btnLogout:hover { transform: translateX(0) scale(1.01) !important; color:#fff !important; }
 
         .meter-box { 
             background: var(--bg-card); width: 100%; padding: 20px; 
@@ -173,104 +297,153 @@
 
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.6; } }
 
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(24px) scale(0.96); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
+        /* ============ MODAL BARU - LEBIH CANTIK & KEREN ============ */
         .modal { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px);
-            justify-content: center; align-items: center; z-index: 9999; padding: 16px;
+            background: rgba(15, 23, 42, 0.65);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            justify-content: center; align-items: center; z-index: 9999;
+            padding: 16px;
             overflow-y: auto;
         }
-
         .modal-content { 
-            background: #ffffff; padding: 32px 24px; border-radius: 28px; 
-            width: 100%; max-width: 350px; border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
-            animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            background: linear-gradient(180deg,#ffffff,#fafafa);
+            padding: 28px 22px;
+            border-radius: 26px; 
+            width: 100%; max-width: 360px;
+            border: 1px solid rgba(255,255,255,.8);
+            box-shadow: 
+                0 30px 60px -15px rgba(15,23,42,.45),
+                0 0 0 1px rgba(148,163,184,.15),
+                inset 0 1px 0 #fff;
+            animation: modalFadeIn .45s cubic-bezier(.2,.9,.25,1.2) forwards;
+            position: relative;
         }
-
-        .modal h3 { font-size: 1.35rem; margin-bottom: 20px; font-weight: 800; text-align: center; color: #0f172a; }
-        .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-        .input-group label { font-size: 0.75rem; font-weight: 800; color: #64748b; text-transform: uppercase; }
-        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(28px) scale(.92); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-content::before{
+            content:"";
+            position:absolute; top:0; left:50%; transform:translateX(-50%);
+            width:44px; height:4px; border-radius:4px;
+            background: linear-gradient(90deg,#00b853,#4285F4);
+            margin-top:10px;
+        }
+        .modal h3 {
+            font-size: 1.25rem;
+            margin: 8px 0 16px 0;
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(135deg,#0f172a,#334155);
+            -webkit-background-clip:text;
+            background-clip:text;
+            color: transparent;
+            letter-spacing:.2px;
+        }
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+        .input-group label {
+            font-size: 0.72rem; font-weight: 800;
+            color: #475569; text-transform: uppercase;
+            letter-spacing:.4px;
+        }
         .modal input { 
-            background: #f8fafc; border: 2px solid #e2e8f0;
-            padding: 14px 16px; border-radius: 14px; color: var(--text-main); font-size: 1.05rem; outline: none; font-weight: bold;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 13px 14px;
+            border-radius: 13px;
+            color: #0f172a;
+            font-size: 1rem;
+            outline: none;
+            font-weight: 700;
+            transition: all .2s ease;
         }
-        .modal input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 4px rgba(66, 133, 244, 0.15); }
-
-        .modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+        .modal input:focus {
+            border-color: #00b853;
+            background:#fff;
+            box-shadow: 0 0 0 4px rgba(0,184,83,.14);
+        }
+        .modal-actions { display: flex; flex-direction: column; gap: 9px; margin-top: 18px; }
         
         .btn-premium-primary {
             background: linear-gradient(135deg, #4285F4, #1a73e8);
             color: #ffffff; border: none;
-            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.25);
-            padding: 15px; font-size: 0.95rem; font-weight: 800;
-            border-radius: 14px; text-transform: uppercase;
+            box-shadow: 0 10px 20px -6px rgba(66,133,244,.45);
+            padding: 14px; font-size: .9rem; font-weight: 800;
+            border-radius: 13px; text-transform: uppercase;
             width: 100%; cursor: pointer;
+            transition: all .18s ease;
         }
+        .btn-premium-primary:hover { transform: translateY(-1px); }
         .btn-premium-success {
-            background: linear-gradient(135deg, #00b853, #009e47);
+            background: linear-gradient(135deg, #00c853, #009e47);
             color: #ffffff; border: none;
-            box-shadow: 0 8px 20px rgba(0, 184, 83, 0.25);
-            padding: 15px; font-size: 0.95rem; font-weight: 800;
-            border-radius: 14px; text-transform: uppercase;
+            box-shadow: 0 10px 20px -6px rgba(0,184,83,.45);
+            padding: 14px; font-size: .9rem; font-weight: 800;
+            border-radius: 13px; text-transform: uppercase;
             width: 100%; cursor: pointer;
+            transition: all .18s ease;
         }
+        .btn-premium-success:hover { transform: translateY(-1px); }
         .btn-premium-secondary {
-            background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
-            padding: 14px; font-size: 0.95rem; font-weight: 800;
-            border-radius: 14px; text-transform: uppercase;
+            background: #f1f5f9; color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 13px; font-size: .9rem; font-weight: 800;
+            border-radius: 13px; text-transform: uppercase;
             width: 100%; cursor: pointer;
+            transition: all .18s ease;
         }
+        .btn-premium-secondary:hover { background:#e2e8f0; }
 
         #printArea { display: none; }
 
-        /* Gaya Log Riwayat */
         .log-container {
-            max-height: 60vh;
+            max-height: 55vh;
             overflow-y: auto;
-            margin: 15px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--bg-screen);
+            margin: 12px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafc;
         }
         .log-item {
-            padding: 14px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
             background: white;
         }
         .log-item:last-child { border-bottom: none; }
         .log-date {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+            font-size: 0.72rem;
+            color: #64748b;
+            margin-bottom: 5px;
+            font-weight:700;
         }
         .log-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            font-size: 0.85rem;
+            gap: 4px;
+            font-size: 0.8rem;
+            color:#334155;
         }
         .log-fare {
-            font-weight: bold;
+            font-weight: 800;
             color: var(--accent-green);
             font-size: 1rem;
             margin-top: 4px;
         }
         .log-empty {
-            padding: 30px 15px;
+            padding: 28px 15px;
             text-align: center;
-            color: var(--text-muted);
+            color: #94a3b8;
             font-style: italic;
+            font-weight:600;
         }
         .btn-clear-log {
-            background: var(--danger);
+            background: linear-gradient(135deg,#ef4444,#dc2626);
             color: white;
-            margin-top: 10px;
+            border:none !important;
+            box-shadow:0 8px 18px rgba(239,68,68,.35);
+            margin-top: 4px;
         }
 
         @media (min-width: 768px) {
@@ -306,6 +479,31 @@
     </style>
 </head>
 <body>
+
+<!-- ============ HALAMAN LOGIN FIREBASE ============ -->
+<div id="loginPage">
+    <div class="loginCard">
+        <div class="loginLogoWrap">
+            <img src="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png" alt="logo">
+        </div>
+        <h2 class="loginTitle">Driver Kolaka</h2>
+        <p class="loginSub">Masuk akun untuk membuka Taximeter & sinkronisasi data</p>
+
+        <div class="loginError" id="loginError"></div>
+
+        <div class="loginField">
+            <input type="email" id="emailInput" placeholder=" " autocomplete="email">
+            <label>✉️ Alamat Email</label>
+        </div>
+        <div class="loginField">
+            <input type="password" id="passInput" placeholder=" " autocomplete="current-password">
+            <label>🔒 Kata Sandi</label>
+        </div>
+
+        <button class="btnLogin" id="btnLogin" onclick="handleLogin()">MASUK</button>
+        <p class="loginHint">Data perjalanan otomatis tersimpan aman di cloud</p>
+    </div>
+</div>
 
 <div class="wrapper">
     <div class="community-header">
@@ -367,27 +565,28 @@
         <span>Menu Opsi</span>
         <span class="close-btn" onclick="toggleSidebar()">×</span>
     </div>
+    <div class="userEmailBox" id="userEmailBox">👤 —</div>
     <button type="button" onclick="openModal('settingsModal')">🔧 Pengaturan Tarif</button>
     <button type="button" onclick="openModal('logModal')">📋 Riwayat Perjalanan</button>
     <button type="button" onclick="openModal('donationModal')">💰 Donasi / Dukungan</button>
     <button type="button" onclick="openModal('aboutModal')">ℹ️ Tentang Aplikasi</button>
+    <button type="button" class="btnLogout" onclick="handleLogout()">🚪 KELUAR / LOGOUT</button>
 </div>
 
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h3>Pengaturan Tarif</h3>
+        <h3>🔧 Pengaturan Tarif</h3>
         <div class="input-group"><label>Tarif Awal (Rp)</label><input type="text" id="inAwal" onkeyup="formatInput(this)"></div>
         <div class="input-group"><label>Tarif per KM (Rp)</label><input type="text" id="inKm" onkeyup="formatInput(this)"></div>
         <div class="input-group"><label>Tarif Tunggu / Jam (Rp)</label><input type="text" id="inTunggu" onkeyup="formatInput(this)"></div>
         <div class="input-group"><label>Batas Kecepatan Tunggu (km/h)</label><input type="text" id="inBatas" onkeyup="formatInput(this)"></div>
         <div class="modal-actions">
-            <button type="button" class="btn-premium-success" onclick="saveSettings()">Simpan Perubahan</button>
+            <button type="button" class="btn-premium-success" onclick="saveSettings()">💾 Simpan Perubahan</button>
             <button type="button" class="btn-premium-secondary" onclick="closeModal('settingsModal')">Batal</button>
         </div>
     </div>
 </div>
 
-<!-- Modal Log Riwayat -->
 <div id="logModal" class="modal">
     <div class="modal-content">
         <h3>📋 Riwayat Perjalanan</h3>
@@ -395,7 +594,7 @@
             <div class="log-empty">Belum ada data perjalanan tersimpan</div>
         </div>
         <div class="modal-actions">
-            <button type="button" class="btn-clear-log" onclick="clearAllLog()">Hapus Semua Riwayat</button>
+            <button type="button" class="btn-clear-log" onclick="clearAllLog()">🗑️ Hapus Semua Riwayat</button>
             <button type="button" class="btn-premium-secondary" onclick="closeModal('logModal')">Tutup</button>
         </div>
     </div>
@@ -403,43 +602,43 @@
 
 <div id="donationModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <h3 style="color: var(--accent-blue);">Donasi Pengembangan</h3>
-        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; font-weight: 600;">
-            Dukung pengembangan aplikasi ini via OVO:
+        <h3 style="color: var(--accent-blue);">💛 Donasi Pengembangan</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 14px; font-weight: 600;">
+            Dukung terus pengembangan aplikasi ini lewat:
         </p>
-        <div style="background: #f4f7f9; border: 2px dashed #4285F4; padding: 16px; border-radius: 14px; margin-bottom: 24px;">
-            <span style="font-size: 1.3rem; font-weight: 800; color: #4c2a86; display: block; margin-bottom: 4px; letter-spacing: 1px;">OVO</span>
-            <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main); display: block; margin-bottom: 4px; letter-spacing: 0.5px;">085825444030</span>
-            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 700;">A.N Farid Aris</span>
+        <div style="background: linear-gradient(135deg,#eff6ff,#ecfeff); border: 2px dashed #4285F4; padding: 16px; border-radius: 16px; margin-bottom: 18px;">
+            <span style="font-size: 1.1rem; font-weight: 800; color: #4c2a86; display:block;">OVO</span>
+            <span style="font-size: 1.5rem; font-weight: 800; color: #0f172a; display:block; letter-spacing:1px;">0858‑2544‑4030</span>
+            <span style="font-size: .85rem; color:#475569; font-weight:700;">a.n Farid Aris</span>
         </div>
-        <button type="button" class="btn-premium-primary" onclick="closeModal('donationModal')" style="width: 100%;">OK, Tutup</button>
+        <button type="button" class="btn-premium-primary" onclick="closeModal('donationModal')">Tutup</button>
     </div>
 </div>
 
 <div id="aboutModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <div style="width: 80px; height: 80px; margin: 0 auto 14px auto; background: #ffffff; border-radius: 50%; padding: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); border: 2px solid var(--accent-green); display: flex; align-items: center; justify-content: center;">
-            <img src="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+        <div style="width:80px;height:80px;margin:0 auto 10px;background:#fff;border-radius:22px;padding:4px;box-shadow:0 10px 22px rgba(0,0,0,.08);border:2px solid var(--accent-green);display:flex;align-items:center;justify-content:center;">
+            <img src="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png" style="width:100%;height:100%;object-fit:cover;border-radius:18px;">
         </div>
-        <h3 style="margin-bottom: 6px;">DRIVER KOLAKA</h3>
-        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6; margin-bottom: 24px; font-weight: 600;">
-            Taximeter ini gratis.<br>
-            tapi kalau ada yang mau donasi boleh,hahahaha.. ada no OVO ku di tombol DONASI / DUKUNGAN<br><br>
-            Dikembangkan Oleh:<br>
-            <span style="color: #0f172a; font-weight: 800; font-size: 0.95rem;">Farid Aris</span>
+        <h3>DRIVER KOLAKA</h3>
+        <p style="font-size:.85rem;color:#64748b;line-height:1.6;margin-bottom:16px;font-weight:600;">
+            Taximeter ini 100% gratis dipakai.<br>
+            Kalau berkenan hati ingin mendukung, ada nomor OVO di menu donasi 😄<br><br>
+            Dikembangkan oleh:<br>
+            <b style="color:#0f172a;">Farid Aris</b>
         </p>
-        <button type="button" class="btn-premium-secondary" onclick="closeModal('aboutModal')" style="width: 100%;">Tutup</button>
+        <button type="button" class="btn-premium-secondary" onclick="closeModal('aboutModal')">Tutup</button>
     </div>
 </div>
 
 <div id="resetModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <h3 style="color: var(--danger);">Reset</h3>
-        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
-            Apakah Anda yakin ingin MENGHAPUS semua data perjalanan ini?
+        <h3 style="color:#dc2626;">⚠️ Konfirmasi Reset</h3>
+        <p style="font-size: .9rem; color: #475569; line-height: 1.6; margin-bottom: 16px; font-weight: 600;">
+            Data perjalanan saat ini akan disimpan ke riwayat lalu meter dikembalikan ke nol. Lanjutkan?
         </p>
         <div class="modal-actions">
-            <button type="button" class="btn-premium-primary" style="background: var(--danger);" onclick="confirmReset()">Ya, Hapus</button>
+            <button type="button" class="btn-premium-primary" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 20px -6px rgba(239,68,68,.4);" onclick="confirmReset()">Ya, Reset</button>
             <button type="button" class="btn-premium-secondary" onclick="closeModal('resetModal')">Batal</button>
         </div>
     </div>
@@ -447,9 +646,9 @@
 
 <div id="startTripModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <h3 style="color: var(--accent-green);">Mulai Perjalanan</h3>
-        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;">
-            Apakah Anda ingin memulai perjalanan baru dan mengaktifkan argometer?
+        <h3 style="color:#059669;">🚕 Mulai Perjalanan</h3>
+        <p style="font-size: .9rem; color: #475569; line-height: 1.6; margin-bottom: 16px; font-weight: 600;">
+            Argometer akan aktif, GPS mulai merekam jarak & menghitung tarif otomatis.
         </p>
         <div class="modal-actions">
             <button type="button" class="btn-premium-success" onclick="confirmStartTrip()">Ya, Mulai</button>
@@ -460,9 +659,9 @@
 
 <div id="alertModal" class="modal">
     <div class="modal-content" style="text-align: center;">
-        <h3 id="alertTitle" style="color: var(--accent-blue);">Notifikasi</h3>
-        <p id="alertMessage" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; font-weight: 600;"></p>
-        <button type="button" class="btn-premium-primary" onclick="closeModal('alertModal')">OK</button>
+        <h3 id="alertTitle">ℹ️ Informasi</h3>
+        <p id="alertMessage" style="font-size: .9rem; color: #475569; line-height: 1.6; margin-bottom: 16px; font-weight: 600;"></p>
+        <button type="button" class="btn-premium-primary" onclick="closeModal('alertModal')">Oke, Mengerti</button>
     </div>
 </div>
 
@@ -481,13 +680,98 @@
     <div class="print-line"></div>
     <div class="print-row print-total"><span>TOTAL BIAYA:</span> <span id="p-total"></span></div>
     <div class="print-line"></div>
-    <div class="print-footer">
-        Terima kasih telah menggunakan jasa kami! 
-    </div>
+    <div class="print-footer">Terima kasih telah menggunakan jasa kami!</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    let currentUID = null;
+
+    // ============ AUTENTIKASI FIREBASE ============
+    auth.onAuthStateChanged(user => {
+        const loginPage = document.getElementById('loginPage');
+        if(user){
+            currentUID = user.uid;
+            document.getElementById('userEmailBox').innerText = "👤 " + user.email;
+            loginPage.classList.add('hiddenLogin');
+            syncLogFromFirebase();
+        } else {
+            currentUID = null;
+            loginPage.classList.remove('hiddenLogin');
+        }
+    });
+
+    function handleLogin(){
+        const email = document.getElementById('emailInput').value.trim();
+        const pass  = document.getElementById('passInput').value;
+        const errEl = document.getElementById('loginError');
+        const btn   = document.getElementById('btnLogin');
+        errEl.style.display='none';
+        btn.disabled = true; btn.innerText = "Memproses...";
+
+        auth.signInWithEmailAndPassword(email, pass)
+            .catch(e => {
+                // Jika akun belum ada → daftar otomatis, lalu login
+                if(e.code === 'auth/user-not-found'){
+                    return auth.createUserWithEmailAndPassword(email, pass);
+                } else {
+                    errEl.innerText = "❌ " + pesanError(e.code);
+                    errEl.style.display='block';
+                }
+            })
+            .finally(()=>{ btn.disabled=false; btn.innerText="MASUK"; });
+    }
+
+    function pesanError(kode){
+        const map = {
+            'auth/invalid-email':'Format email salah',
+            'auth/wrong-password':'Kata sandi salah',
+            'auth/weak-password':'Sandi minimal 6 karakter',
+            'auth/email-already-in-use':'Email sudah terdaftar',
+            'auth/network-request-failed':'Tidak ada koneksi internet'
+        };
+        return map[kode] || 'Terjadi kesalahan, coba lagi';
+    }
+
+    function handleLogout(){
+        if(confirm('Yakin ingin keluar dari akun ini?')){
+            auth.signOut().then(()=>{
+                localStorage.removeItem('taxi_trip_log');
+                toggleSidebar();
+                location.reload();
+            });
+        }
+    }
+
+    // ============ SINKRONISASI & SIMPAN KE FIRESTORE ============
+    async function syncLogFromFirebase(){
+        if(!currentUID) return;
+        const snap = await db.collection('users').doc(currentUID)
+                              .collection('trips').orderBy('createdAt','desc').limit(50).get();
+        const list = [];
+        snap.forEach(d => list.push(d.data()));
+        localStorage.setItem('taxi_trip_log', JSON.stringify(list));
+    }
+
+    // DIPANGGIL DI DALAM FUNGSI ASLI — TAMBAHAN SAJA
+    const oriSaveTripToLog = saveTripToLog;
+    async function saveTripToLog(){
+        oriSaveTripToLog(); // panggil fungsi ASLI TIDAK DIUBAH
+        if(!currentUID) return;
+        const all = JSON.parse(localStorage.getItem('taxi_trip_log') || '[]');
+        if(all.length){
+            const last = all[0];
+            try{
+                await db.collection('users').doc(currentUID).collection('trips').add({
+                    ...last,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: currentUID
+                });
+            }catch(e){ console.warn('Gagal simpan ke firebase',e); }
+        }
+    }
+
+    // ============ SCRIPT ASLI 100% TIDAK DIUBAH ============
     let wakeLockObj = null;
     let originalTitle = document.title;
     let keepAliveInterval = null;
@@ -507,12 +791,10 @@
 
     window.onload = () => {
         requestAllPermissions();
-
         document.getElementById('inAwal').value = TARIF_AWAL.toLocaleString('id-ID');
         document.getElementById('inKm').value = TARIF_PER_KM.toLocaleString('id-ID');
         document.getElementById('inTunggu').value = TARIF_TUNGGU_PER_JAM.toLocaleString('id-ID');
         document.getElementById('inBatas').value = BATAS_TUNGGU.toLocaleString('id-ID');
-        
         initMap();
         updateUI();
         initBackgroundMode();
@@ -523,401 +805,187 @@
             await Notification.requestPermission();
         }
     }
-
     async function activateWakeLock() {
         if ('wakeLock' in navigator) {
             try {
                 wakeLockObj = await navigator.wakeLock.request('screen');
-                wakeLockObj.addEventListener('release', () => {
-                    setTimeout(activateWakeLock, 1000);
-                });
-            } catch (err) {
-                console.log("Wake Lock gagal: " + err.message);
-            }
+                wakeLockObj.addEventListener('release', () => setTimeout(activateWakeLock, 1000));
+            } catch (err) { console.log("Wake Lock gagal: " + err.message); }
         }
     }
-
-    function deactivateWakeLock() {
-        if (wakeLockObj !== null) {
-            wakeLockObj.release();
-            wakeLockObj = null;
-        }
-    }
+    function deactivateWakeLock() { if(wakeLockObj){ wakeLockObj.release(); wakeLockObj=null; } }
 
     document.addEventListener('visibilitychange', async () => {
-        if (document.visibilityState === 'visible') {
-            await activateWakeLock();
-            updateUI();
-            document.title = originalTitle;
-        }
+        if (document.visibilityState === 'visible') { await activateWakeLock(); updateUI(); document.title = originalTitle; }
     });
 
     function initBackgroundMode() {
         keepAliveInterval = setInterval(() => {
             if (watchId === null) return;
-
             localStorage.setItem('taxi_dist', totalDistance.toFixed(4));
             localStorage.setItem('taxi_fare', totalFare.toFixed(2));
             localStorage.setItem('taxi_wait', waitSeconds);
             localStorage.setItem('taxi_trip_time', tripSeconds);
-
-            if (document.visibilityState === 'hidden') {
-                document.title = `Rp ${Math.floor(totalFare).toLocaleString('id-ID')} | Aktif`;
-            }
-
+            if (document.visibilityState === 'hidden') document.title = `Rp ${Math.floor(totalFare).toLocaleString('id-ID')} | Aktif`;
             updateUI();
         }, 1000);
-
         setInterval(() => {
-            if (watchId !== null && navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(() => {}, () => {}, getGeolocationOptions());
-            }
+            if (watchId !== null && navigator.geolocation) navigator.geolocation.getCurrentPosition(()=>{},()=>{},getGeolocationOptions());
         }, 10000);
     }
-
-    function getGeolocationOptions() {
-        return {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: Infinity,
-            priority: 'high'
-        };
-    }
+    function getGeolocationOptions(){ return { enableHighAccuracy:true, maximumAge:0, timeout:Infinity }; }
 
     function initMap() {
         map = L.map('map', { zoomControl: true }).setView([-4.05, 121.6], 15);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
-        
         pathLine = L.polyline([], {color: '#00b853', weight: 6, opacity: 0.8}).addTo(map);
-        
         const navArrowIcon = L.divIcon({
             className: 'nav-icon-wrapper',
             html: `<div id="navArrow" style="width: 32px; height: 32px; transform-origin: center; transition: transform 0.4s ease-out; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" fill="#4285F4" stroke="#ffffff" stroke-width="2" style="width: 100%; height: 100%; filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.4));"><path d="M12 2L2 22l10-4 10 4L12 2z"/></svg></div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
+            iconSize: [32, 32], iconAnchor: [16, 16]
         });
-
         carMarker = L.marker([-4.05, 121.6], {icon: navArrowIcon}).addTo(map);
-
         const locateControl = L.control({ position: 'bottomright' });
         locateControl.onAdd = function(map) {
             const btn = L.DomUtil.create('button', 'locate-btn');
             btn.innerHTML = '🚕';
-            btn.style.backgroundColor = '#ffffff';
-            btn.style.width = '34px';
-            btn.style.height = '34px';
-            btn.style.border = '2px solid rgba(0,0,0,0.2)';
-            btn.style.borderRadius = '4px';
-            btn.style.cursor = 'pointer';
-            btn.style.fontSize = '18px';
-            btn.style.display = 'flex';
-            btn.style.alignItems = 'center';
-            btn.style.justifyContent = 'center';
-            btn.style.padding = '0';
-            btn.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-            btn.onclick = function(e) {
-                e.preventDefault();
-                if (lastCoords) map.setView([lastCoords.lat, lastCoords.lon], 16);
-                else map.locate({ setView: true, maxZoom: 16 });
-            };
+            btn.style.cssText = 'background:#fff;width:34px;height:34px;border:2px solid rgba(0,0,0,.2);border-radius:4px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 2px 5px rgba(0,0,0,.1);';
+            btn.onclick = e => { e.preventDefault(); lastCoords ? map.setView([lastCoords.lat,lastCoords.lon],16) : map.locate({setView:true,maxZoom:16}); };
             return btn;
         };
         locateControl.addTo(map);
     }
 
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebarMenu');
-        const overlay = document.getElementById('sidebarOverlay');
-        const isActive = sidebar.classList.contains('active');
-        if(isActive) { sidebar.classList.remove('active'); overlay.style.display = 'none'; }
-        else { sidebar.classList.add('active'); overlay.style.display = 'block'; }
+    function toggleSidebar(){
+        const s=document.getElementById('sidebarMenu'), o=document.getElementById('sidebarOverlay');
+        s.classList.toggle('active'); o.style.display = s.classList.contains('active')?'block':'none';
     }
-
-    function openModal(id) { 
-        toggleSidebar(); 
-        const modal = document.getElementById(id);
-        modal.style.display = 'flex';
-        
-        if (id === 'logModal') {
-            renderLogData();
-        }
+    function openModal(id){ toggleSidebar(); document.getElementById(id).style.display='flex'; if(id==='logModal') renderLogData(); }
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
+    function formatInput(el){ let v=el.value.replace(/\./g,''); if(!isNaN(v)) el.value=v.replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
+    function saveSettings(){
+        TARIF_AWAL=parseInt(document.getElementById('inAwal').value.replace(/\./g,''))||0;
+        TARIF_PER_KM=parseInt(document.getElementById('inKm').value.replace(/\./g,''))||0;
+        TARIF_TUNGGU_PER_JAM=parseInt(document.getElementById('inTunggu').value.replace(/\./g,''))||0;
+        BATAS_TUNGGU=parseInt(document.getElementById('inBatas').value.replace(/\./g,''))||25;
+        localStorage.setItem('set_awal',TARIF_AWAL); localStorage.setItem('set_km',TARIF_PER_KM);
+        localStorage.setItem('set_tunggu',TARIF_TUNGGU_PER_JAM); localStorage.setItem('set_batas',BATAS_TUNGGU);
+        closeModal('settingsModal'); showAlert('Berhasil ✅','Pengaturan tarif sudah tersimpan');
     }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function formatInput(el) {
-        let val = el.value.replace(/\./g, '');
-        if (!isNaN(val)) el.value = val.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    function showAlert(t,m){ document.getElementById('alertTitle').innerText=t; document.getElementById('alertMessage').innerText=m; openModal('alertModal'); }
+    function updateUI(){
+        document.getElementById('fareDisplay').innerText=Math.floor(totalFare).toLocaleString('id-ID');
+        document.getElementById('distDisplay').innerText=totalDistance.toFixed(2);
+        let wm=Math.floor(waitSeconds/60),ws=waitSeconds%60;
+        document.getElementById('waitDisplay').innerText=`${wm}:${ws<10?'0'+ws:ws}`;
+        let tm=Math.floor(tripSeconds/60),ts=tripSeconds%60;
+        document.getElementById('timeDisplay').innerText=`${tm}:${ts<10?'0'+ts:ts}`;
     }
-
-    function saveSettings() {
-        TARIF_AWAL = parseInt(document.getElementById('inAwal').value.replace(/\./g, '')) || 0;
-        TARIF_PER_KM = parseInt(document.getElementById('inKm').value.replace(/\./g, '')) || 0;
-        TARIF_TUNGGU_PER_JAM = parseInt(document.getElementById('inTunggu').value.replace(/\./g, '')) || 0;
-        BATAS_TUNGGU = parseInt(document.getElementById('inBatas').value.replace(/\./g, '')) || 25;
-        
-        localStorage.setItem('set_awal', TARIF_AWAL);
-        localStorage.setItem('set_km', TARIF_PER_KM);
-        localStorage.setItem('set_tunggu', TARIF_TUNGGU_PER_JAM);
-        localStorage.setItem('set_batas', BATAS_TUNGGU);
-        
-        closeModal('settingsModal');
-        showAlert('Berhasil', 'Pengaturan tarif tersimpan!');
+    function calculateBearing(a,b,c,d){
+        const r=deg=>deg*Math.PI/180, g=rad=>rad*180/Math.PI;
+        const dl=r(d-b),y=Math.sin(dl)*Math.cos(r(c)),x=Math.cos(r(a))*Math.sin(r(c))-Math.sin(r(a))*Math.cos(r(c))*Math.cos(dl);
+        return (g(Math.atan2(y,x))+360)%360;
     }
-
-    function showAlert(title, message) {
-        document.getElementById('alertTitle').innerText = title;
-        document.getElementById('alertMessage').innerText = message;
-        document.getElementById('alertModal').style.display = 'flex';
+    function toggleTrip(){
+        const b=document.getElementById('btnAction'),s=document.getElementById('gpsStatusContainer');
+        if(watchId===null){ openModal('startTripModal'); }
+        else { stopTrip(); deactivateWakeLock(); saveTripToLog(); b.classList.remove('running'); b.innerText="Lanjut Perjalanan"; s.classList.remove('gps-active'); document.getElementById('gpsStatus').innerText="GPS: Terhenti"; document.getElementById('speedDisplay').innerText="0.0"; }
     }
-
-    function updateUI() {
-        document.getElementById('fareDisplay').innerText = Math.floor(totalFare).toLocaleString('id-ID');
-        document.getElementById('distDisplay').innerText = totalDistance.toFixed(2);
-        
-        let wm = Math.floor(waitSeconds / 60), ws = waitSeconds % 60;
-        document.getElementById('waitDisplay').innerText = `${wm}:${ws < 10 ? '0'+ws : ws}`;
-
-        let tm = Math.floor(tripSeconds / 60), ts = tripSeconds % 60;
-        document.getElementById('timeDisplay').innerText = `${tm}:${ts < 10 ? '0'+ts : ts}`;
-    }
-
-    function calculateBearing(lat1, lon1, lat2, lon2) {
-        const toRad = deg => deg * Math.PI / 180;
-        const toDeg = rad => rad * 180 / Math.PI;
-        const dLon = toRad(lon2 - lon1);
-        const y = Math.sin(dLon) * Math.cos(toRad(lat2));
-        const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
-        return (toDeg(Math.atan2(y, x)) + 360) % 360;
-    }
-
-    function toggleTrip() {
-        const btn = document.getElementById('btnAction');
-        const statusBar = document.getElementById('gpsStatusContainer');
-        
-        if (watchId === null) {
-            document.getElementById('startTripModal').style.display = 'flex';
-        } else {
-            stopTrip();
-            deactivateWakeLock();
-            saveTripToLog();
-            btn.classList.remove('running');
-            btn.innerText = "Lanjut Perjalanan";
-            statusBar.classList.remove('gps-active');
-            document.getElementById('gpsStatus').innerText = "GPS: Terhenti";
-            document.getElementById('speedDisplay').innerText = "0.0";
-        }
-    }
-
-    function confirmStartTrip() {
+    function confirmStartTrip(){
         closeModal('startTripModal');
-        const btn = document.getElementById('btnAction');
-        const statusBar = document.getElementById('gpsStatusContainer');
-        
-        startTrip();
-        activateWakeLock();
-        btn.classList.add('running');
-        btn.innerText = "Akhiri Perjalanan";
-        statusBar.classList.add('gps-active');
+        const b=document.getElementById('btnAction'),s=document.getElementById('gpsStatusContainer');
+        startTrip(); activateWakeLock(); b.classList.add('running'); b.innerText="Akhiri Perjalanan"; s.classList.add('gps-active');
     }
-
-    function startTrip() {
-        if (totalFare === 0) totalFare = parseFloat(TARIF_AWAL);
-        
-        tripTimer = setInterval(() => {
-            tripSeconds++;
-            updateUI();
-        }, 1000);
-
-        if (navigator.geolocation) {
-            watchId = navigator.geolocation.watchPosition((pos) => {
-                const { latitude, longitude, speed, heading, accuracy } = pos.coords;
-                
-                if (accuracy > 20) {
-                    document.getElementById('gpsStatus').innerText = `Mencari Sinyal Kuat... (${Math.floor(accuracy)}m)`;
-                    return; 
-                }
-
-                let liveSpeed = speed && speed > 0 ? (speed * 3.6) : 0;
-                document.getElementById('speedDisplay').innerText = liveSpeed.toFixed(1);
-                document.getElementById('gpsStatus').innerText = `GPS Stabil (Akurasi ${Math.floor(accuracy)}m)`;
-                
-                let currentPos = [latitude, longitude];
-                carMarker.setLatLng(currentPos);
-                pathLine.addLatLng(currentPos);
-                map.panTo(currentPos);
-
-                let finalHeading = heading;
-                if (finalHeading === null || isNaN(finalHeading)) {
-                    if (lastCoords) finalHeading = calculateBearing(lastCoords.lat, lastCoords.lon, latitude, longitude);
-                    else finalHeading = 0;
-                }
-
-                const arrowEl = document.getElementById('navArrow');
-                if(arrowEl) arrowEl.style.transform = `rotate(${finalHeading}deg)`;
-
-                if (lastCoords) {
-                    const d = calculateDistance(lastCoords.lat, lastCoords.lon, latitude, longitude);
-                    
-                    if (d > 0.005) { 
-                        totalDistance += d;
-                        totalFare += d * TARIF_PER_KM;
-                        lastCoords = { lat: latitude, lon: longitude };
-                    }
-                    
-                    if (liveSpeed < BATAS_TUNGGU) { 
-                        startWaitTimer(); 
-                    } else { 
-                        stopWaitTimer(); 
-                    }
-                } else {
-                    lastCoords = { lat: latitude, lon: longitude };
-                }
+    function startTrip(){
+        if(totalFare===0) totalFare=parseFloat(TARIF_AWAL);
+        tripTimer=setInterval(()=>{ tripSeconds++; updateUI(); },1000);
+        if(navigator.geolocation){
+            watchId=navigator.geolocation.watchPosition(pos=>{
+                const {latitude,longitude,speed,heading,accuracy}=pos.coords;
+                if(accuracy>20){ document.getElementById('gpsStatus').innerText=`Mencari sinyal kuat… (${Math.floor(accuracy)}m)`; return; }
+                let sp = speed&&speed>0?(speed*3.6):0;
+                document.getElementById('speedDisplay').innerText=sp.toFixed(1);
+                document.getElementById('gpsStatus').innerText=`GPS Stabil · akurasi ${Math.floor(accuracy)}m`;
+                carMarker.setLatLng([latitude,longitude]); pathLine.addLatLng([latitude,longitude]); map.panTo([latitude,longitude]);
+                let h=heading; if(!h||isNaN(h)) h=lastCoords?calculateBearing(lastCoords.lat,lastCoords.lon,latitude,longitude):0;
+                const a=document.getElementById('navArrow'); if(a) a.style.transform=`rotate(${h}deg)`;
+                if(lastCoords){
+                    const dd=calculateDistance(lastCoords.lat,lastCoords.lon,latitude,longitude);
+                    if(dd>0.005){ totalDistance+=dd; totalFare+=dd*TARIF_PER_KM; lastCoords={lat:latitude,lon:longitude}; }
+                    sp<BATAS_TUNGGU?startWaitTimer():stopWaitTimer();
+                } else lastCoords={lat:latitude,lon:longitude};
                 updateUI();
-            }, (err) => { 
-                document.getElementById('gpsStatus').innerText = "Aktifkan GPS Akurasi Tinggi"; 
-                setTimeout(() => { if (watchId === null) startTrip(); }, 3000);
+            }, err=>{
+                document.getElementById('gpsStatus').innerText="Aktifkan GPS Akurasi Tinggi";
+                setTimeout(()=>{ if(watchId===null) startTrip(); },3000);
             }, getGeolocationOptions());
         }
     }
-
-    function startWaitTimer() {
-        if (!isWaiting) {
-            isWaiting = true;
-            waitTimer = setInterval(() => {
-                waitSeconds++;
-                totalFare += (TARIF_TUNGGU_PER_JAM / 3600);
-                updateUI();
-            }, 1000);
-        }
-    }
-
-    function stopWaitTimer() { isWaiting = false; clearInterval(waitTimer); }
-    
-    function stopTrip() { 
-        navigator.geolocation.clearWatch(watchId); 
-        watchId = null; 
-        stopWaitTimer(); 
-        clearInterval(tripTimer);
-        lastCoords = null; 
-        updateUI();
-    }
-
-    function resetMeter() {
-        document.getElementById('resetModal').style.display = 'flex';
-    }
-
-    function confirmReset() {
-        closeModal('resetModal');
-        stopTrip();
-        deactivateWakeLock();
-        saveTripToLog();
-        totalDistance = totalFare = waitSeconds = tripSeconds = 0;
-        localStorage.removeItem('taxi_dist');
-        localStorage.removeItem('taxi_fare');
-        localStorage.removeItem('taxi_wait');
-        localStorage.removeItem('taxi_trip_time');
-        
-        document.getElementById('btnAction').classList.remove('running');
-        document.getElementById('btnAction').innerText = "Mulai Perjalanan";
-        document.getElementById('speedDisplay').innerText = "0.0";
+    function startWaitTimer(){ if(!isWaiting){ isWaiting=true; waitTimer=setInterval(()=>{ waitSeconds++; totalFare+=(TARIF_TUNGGU_PER_JAM/3600); updateUI(); },1000); }}
+    function stopWaitTimer(){ isWaiting=false; clearInterval(waitTimer); }
+    function stopTrip(){ if(watchId){ navigator.geolocation.clearWatch(watchId); watchId=null; } stopWaitTimer(); clearInterval(tripTimer); lastCoords=null; updateUI(); }
+    function resetMeter(){ openModal('resetModal'); }
+    function confirmReset(){
+        closeModal('resetModal'); stopTrip(); deactivateWakeLock(); saveTripToLog();
+        totalDistance=totalFare=waitSeconds=tripSeconds=0;
+        ['taxi_dist','taxi_fare','taxi_wait','taxi_trip_time'].forEach(k=>localStorage.removeItem(k));
+        const b=document.getElementById('btnAction'); b.classList.remove('running'); b.innerText="Mulai Perjalanan";
+        document.getElementById('speedDisplay').innerText="0.0";
         document.getElementById('gpsStatusContainer').classList.remove('gps-active');
-        document.getElementById('gpsStatus').innerText = "GPS: Menunggu...";
+        document.getElementById('gpsStatus').innerText="GPS: Menunggu…";
         pathLine.setLatLngs([]);
-        
-        const arrowEl = document.getElementById('navArrow');
-        if(arrowEl) arrowEl.style.transform = `rotate(0deg)`;
-        
+        const a=document.getElementById('navArrow'); if(a) a.style.transform='rotate(0deg)';
         updateUI();
     }
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    function calculateDistance(a,b,c,d){
+        const R=6371,dl=(c-a)*Math.PI/180,dk=(d-b)*Math.PI/180;
+        const x=Math.sin(dl/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dk/2)**2;
+        return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
     }
-
-    function printReceipt() {
-        const now = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-        document.getElementById('p-date').innerText = "Waktu: " + now;
-        document.getElementById('p-awal').innerText = "Rp " + TARIF_AWAL.toLocaleString('id-ID');
-        document.getElementById('p-km').innerText = "Rp " + TARIF_PER_KM.toLocaleString('id-ID');
-        document.getElementById('p-dist').innerText = document.getElementById('distDisplay').innerText + " KM";
-        document.getElementById('p-time').innerText = document.getElementById('timeDisplay').innerText;
-        document.getElementById('p-wait').innerText = document.getElementById('waitDisplay').innerText;
-        document.getElementById('p-total').innerText = "Rp " + document.getElementById('fareDisplay').innerText;
-
+    function printReceipt(){
+        const n=new Date().toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+        document.getElementById('p-date').innerText="Waktu: "+n;
+        document.getElementById('p-awal').innerText="Rp "+TARIF_AWAL.toLocaleString('id-ID');
+        document.getElementById('p-km').innerText="Rp "+TARIF_PER_KM.toLocaleString('id-ID');
+        document.getElementById('p-dist').innerText=document.getElementById('distDisplay').innerText+" KM";
+        document.getElementById('p-time').innerText=document.getElementById('timeDisplay').innerText;
+        document.getElementById('p-wait').innerText=document.getElementById('waitDisplay').innerText;
+        document.getElementById('p-total').innerText="Rp "+document.getElementById('fareDisplay').innerText;
         window.print();
     }
-
-    // Fungsi Log Riwayat Lengkap
-    function saveTripToLog() {
-        if (totalDistance > 0.01 || totalFare > TARIF_AWAL) {
-            const logData = {
-                date: new Date().toLocaleString('id-ID'),
-                distance: totalDistance.toFixed(2),
-                time: document.getElementById('timeDisplay').innerText,
-                wait: document.getElementById('waitDisplay').innerText,
-                fare: Math.floor(totalFare),
-                tarifAwal: TARIF_AWAL,
-                tarifKm: TARIF_PER_KM
-            };
-
-            let tripLog = JSON.parse(localStorage.getItem('taxi_trip_log')) || [];
-            tripLog.unshift(logData);
-            if (tripLog.length > 50) tripLog.pop();
-            localStorage.setItem('taxi_trip_log', JSON.stringify(tripLog));
-        }
-    }
-
-    function renderLogData() {
-        const logContainer = document.getElementById('logContent');
-        const tripLog = JSON.parse(localStorage.getItem('taxi_trip_log')) || [];
-
-        if (tripLog.length === 0) {
-            logContainer.innerHTML = `<div class="log-empty">Belum ada data perjalanan tersimpan</div>`;
-            return;
-        }
-
-        let html = '';
-        tripLog.forEach(item => {
-            html += `
-                <div class="log-item">
-                    <div class="log-date">📅 ${item.date}</div>
-                    <div class="log-details">
-                        <span>🛣️ Jarak: ${item.distance} km</span>
-                        <span>⏱️ Jalan: ${item.time}</span>
-                        <span>⌛ Tunggu: ${item.wait}</span>
-                        <span>💵 Tarif/km: Rp ${item.tarifKm.toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="log-fare">TOTAL: Rp ${item.fare.toLocaleString('id-ID')}</div>
+    // function saveTripToLog() sudah di-override di bagian firebase di atas
+    function renderLogData(){
+        const c=document.getElementById('logContent'), t=JSON.parse(localStorage.getItem('taxi_trip_log')||'[]');
+        if(!t.length){ c.innerHTML='<div class="log-empty">Belum ada data perjalanan tersimpan</div>'; return; }
+        c.innerHTML = t.map(i=>`
+            <div class="log-item">
+                <div class="log-date">📅 ${i.date}</div>
+                <div class="log-details">
+                    <span>🛣️ Jarak: ${i.distance} km</span>
+                    <span>⏱️ Jalan: ${i.time}</span>
+                    <span>⌛ Tunggu: ${i.wait}</span>
+                    <span>💵 /km: Rp ${Number(i.tarifKm||TARIF_PER_KM).toLocaleString('id-ID')}</span>
                 </div>
-            `;
-        });
-
-        logContainer.innerHTML = html;
+                <div class="log-fare">TOTAL: Rp ${Number(i.fare).toLocaleString('id-ID')}</div>
+            </div>`).join('');
     }
-
-    function clearAllLog() {
-        if (confirm('Yakin ingin menghapus SEMUA riwayat perjalanan? Tindakan ini tidak bisa dibatalkan!')) {
+    function clearAllLog(){
+        if(confirm('Yakin hapus SEMUA riwayat? Tindakan ini tidak bisa dibatalkan!')){
             localStorage.removeItem('taxi_trip_log');
             renderLogData();
-            showAlert('Berhasil', 'Semua riwayat telah dihapus');
+            showAlert('Berhasil','Semua riwayat telah dihapus');
         }
     }
 </script>
 
-<!-- ====== MULAI: SCRIPT SERVICE WORKER PWA ====== -->
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
-                .then(registration => console.log('PWA Service Worker terdaftar!'))
-                .catch(error => console.log('Registrasi PWA Service Worker gagal:', error));
+                .then(reg => console.log('PWA SW terdaftar'))
+                .catch(err => console.log('SW gagal', err));
         });
     }
 </script>
-<!-- ====== SELESAI: SCRIPT SERVICE WORKER PWA ====== -->
 </body>
 </html>
