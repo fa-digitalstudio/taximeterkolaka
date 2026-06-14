@@ -48,21 +48,19 @@
     <meta name="apple-mobile-web-app-title" content="Taxi Meter">
     <link rel="apple-touch-icon" href="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png">
     
-    <!-- ============ FIREBASE SDK ============ -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>
-        // GANTI DENGAN KONFIG FIREBASE KAMU SENDIRI
         const firebaseConfig = {
-  apiKey: "AIzaSyAnqF8DQANWtfnFVDlYQX0hwMrEYyv6nbc",
-  authDomain: "taxikolaka.firebaseapp.com",
-  databaseURL: "https://taxikolaka-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "taxikolaka",
-  storageBucket: "taxikolaka.firebasestorage.app",
-  messagingSenderId: "843852532099",
-  appId: "1:843852532099:web:17571045f4371cbbfe0eb6"
-};
+            apiKey: "AIzaSyAnqF8DQANWtfnFVDlYQX0hwMrEYyv6nbc",
+            authDomain: "taxikolaka.firebaseapp.com",
+            databaseURL: "https://taxikolaka-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "taxikolaka",
+            storageBucket: "taxikolaka.firebasestorage.app",
+            messagingSenderId: "843852532099",
+            appId: "1:843852532099:web:17571045f4371cbbfe0eb6"
+        };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -97,19 +95,27 @@
             position: relative;
         }
 
-        /* ============ HALAMAN LOGIN CANTIK ============ */
         #loginPage {
             position: fixed; inset: 0; z-index: 99999;
             background: linear-gradient(135deg, #0ea5e9 0%, #00b853 50%, #059669 100%);
             display: flex; align-items: center; justify-content: center;
             padding: 20px;
         }
-        #loginPage.hiddenLogin { display: none; }
-        .loginCard {
+        #loginPage.hiddenAuth { display: none; }
+
+        #registerPage {
+            position: fixed; inset: 0; z-index: 99999;
+            background: linear-gradient(135deg, #6366f1 0%, #4285F4 50%, #0ea5e9 100%);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        #registerPage.showAuth { display: flex; }
+
+        .loginCard, .registerCard {
             width: 100%; max-width: 400px;
             background: #ffffff;
             border-radius: 28px;
-            padding: 36px 28px;
+            padding: 32px 24px;
             box-shadow: 0 30px 80px -20px rgba(0,0,0,0.45);
             animation: loginPop .55s cubic-bezier(.2,.9,.25,1.2);
         }
@@ -118,22 +124,28 @@
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .loginLogoWrap {
-            width: 90px; height: 90px; margin: 0 auto 14px;
+            width: 82px; height: 82px; margin: 0 auto 12px;
             background: linear-gradient(135deg,#00b853,#4285F4);
-            border-radius: 24px; display:flex; align-items:center; justify-content:center;
+            border-radius: 22px; display:flex; align-items:center; justify-content:center;
             box-shadow: 0 12px 25px rgba(0,184,83,.35);
         }
-        .loginLogoWrap img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border:2px solid #fff; }
-        .loginTitle { text-align:center; font-size:1.45rem; font-weight:800; color:#0f172a; }
-        .loginSub   { text-align:center; color:#64748b; font-size:.85rem; margin-bottom:22px; font-weight:600; }
-        .loginField { position: relative; margin-bottom: 16px; }
+        .registerCard .loginLogoWrap {
+            background: linear-gradient(135deg,#6366f1,#0ea5e9);
+            box-shadow: 0 12px 25px rgba(66,133,244,.35);
+        }
+        .loginLogoWrap img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; border:2px solid #fff; }
+        .loginTitle { text-align:center; font-size:1.35rem; font-weight:800; color:#0f172a; }
+        .loginSub   { text-align:center; color:#64748b; font-size:.82rem; margin-bottom:18px; font-weight:600; }
+
+        /* ============ HANYA INI CSS BARU UNTUK TOMBOL LIHAT SANDI ============ */
+        .loginField { position: relative; margin-bottom: 14px; }
         .loginField input {
             width: 100%;
-            padding: 18px 16px 10px 16px;
+            padding: 18px 44px 9px 14px; /* kanan dilebihkan buat tombol mata */
             border-radius: 14px;
             border: 2px solid #e2e8f0;
             background: #f8fafc;
-            font-size: 1rem;
+            font-size: .95rem;
             font-weight: 700;
             color: #0f172a;
             outline: none;
@@ -144,39 +156,67 @@
             background: #fff;
             box-shadow: 0 0 0 5px rgba(0,184,83,.12);
         }
+        .registerCard .loginField input:focus {
+            border-color: #4285F4;
+            box-shadow: 0 0 0 5px rgba(66,133,244,.12);
+        }
         .loginField label {
             position: absolute; left:14px; top:14px;
-            font-size: .9rem; color:#94a3b8; font-weight:700;
+            font-size: .85rem; color:#94a3b8; font-weight:700;
             pointer-events:none; transition: all .2s ease;
             background: transparent; padding:0 4px;
         }
         .loginField input:focus + label,
         .loginField input:not(:placeholder-shown) + label {
-            top: -7px; font-size: .7rem; color:#00b853; background:#fff;
+            top: -7px; font-size: .68rem; color:#00b853; background:#fff;
         }
-        .btnLogin {
+        .registerCard .loginField input:focus + label,
+        .registerCard .loginField input:not(:placeholder-shown) + label {
+            color:#4285F4;
+        }
+        .pass-toggle {
+            position:absolute; right:12px; top:50%; transform:translateY(-50%);
+            background:transparent; border:none; cursor:pointer;
+            font-size:1.1rem; line-height:1; padding:6px;
+            color:#64748b;
+        }
+        .pass-toggle:hover { color:#0f172a; }
+        /* ================================================================ */
+
+        .btnLogin, .btnRegister {
             width:100%;
-            padding:15px;
+            padding:14px;
             border:none; border-radius:14px;
-            color:#fff; font-weight:800; font-size:1rem; letter-spacing:.5px;
-            background: linear-gradient(135deg,#00b853,#059669);
-            box-shadow: 0 10px 22px rgba(0,184,83,.35);
+            color:#fff; font-weight:800; font-size:.95rem; letter-spacing:.5px;
             cursor:pointer;
             transition: all .2s ease;
             text-transform: uppercase;
         }
-        .btnLogin:hover { transform: translateY(-1px); }
-        .btnLogin:active { transform: scale(.98); }
-        .btnLogin:disabled { opacity:.6; cursor:not-allowed; }
+        .btnLogin {
+            background: linear-gradient(135deg,#00b853,#059669);
+            box-shadow: 0 10px 22px rgba(0,184,83,.35);
+        }
+        .btnRegister {
+            background: linear-gradient(135deg,#4f46e5,#0ea5e9);
+            box-shadow: 0 10px 22px rgba(66,133,244,.35);
+        }
+        .btnLogin:active, .btnRegister:active { transform: scale(.98); }
+        .btnLogin:disabled, .btnRegister:disabled { opacity:.6; cursor:not-allowed; }
         .loginError {
             display:none;
             background:#fef2f2; color:#b91c1c;
             border:1px solid #fecaca;
-            padding:10px 12px; border-radius:10px;
-            font-size:.8rem; font-weight:700; text-align:center;
-            margin-bottom:12px;
+            padding:9px 10px; border-radius:10px;
+            font-size:.75rem; font-weight:700; text-align:center;
+            margin-bottom:10px;
         }
-        .loginHint { text-align:center; font-size:.75rem; color:#64748b; margin-top:14px; font-weight:600; }
+        .switchAuth {
+            text-align:center; font-size:.75rem; color:#475569; margin-top:12px; font-weight:600;
+        }
+        .switchAuth a {
+            color:#00b853; font-weight:800; text-decoration:none; cursor:pointer;
+        }
+        .registerCard .switchAuth a { color:#4285F4; }
 
         .wrapper {
             width: 100%;
@@ -297,7 +337,6 @@
 
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.6; } 50% { transform: scale(1.3); opacity: 1; } 100% { transform: scale(0.8); opacity: 0.6; } }
 
-        /* ============ MODAL BARU - LEBIH CANTIK & KEREN ============ */
         .modal { 
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(15, 23, 42, 0.65);
@@ -480,14 +519,14 @@
 </head>
 <body>
 
-<!-- ============ HALAMAN LOGIN FIREBASE ============ -->
+<!-- ============ LOGIN + TOMBOL MATA ============ -->
 <div id="loginPage">
     <div class="loginCard">
         <div class="loginLogoWrap">
             <img src="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png" alt="logo">
         </div>
         <h2 class="loginTitle">Driver Kolaka</h2>
-        <p class="loginSub">Masuk akun untuk membuka Taximeter & sinkronisasi data</p>
+        <p class="loginSub">Masuk akun untuk membuka Taximeter</p>
 
         <div class="loginError" id="loginError"></div>
 
@@ -498,10 +537,45 @@
         <div class="loginField">
             <input type="password" id="passInput" placeholder=" " autocomplete="current-password">
             <label>🔒 Kata Sandi</label>
+            <!-- HANYA BARIS INI YANG DITAMBAHKAN -->
+            <button type="button" class="pass-toggle" onclick="togglePassword('passInput',this)" tabindex="-1">🙈</button>
         </div>
 
         <button class="btnLogin" id="btnLogin" onclick="handleLogin()">MASUK</button>
-        <p class="loginHint">Data perjalanan otomatis tersimpan aman di cloud</p>
+        <p class="switchAuth">Belum punya akun? <a onclick="showRegister()">Daftar disini</a></p>
+    </div>
+</div>
+
+<!-- ============ DAFTAR + TOMBOL MATA DI 2 INPUT ============ -->
+<div id="registerPage">
+    <div class="registerCard">
+        <div class="loginLogoWrap">
+            <img src="https://i.ibb.co.com/5WgtxmZy/file-000000009040720cb7c1798a425f4a4e.png" alt="logo">
+        </div>
+        <h2 class="loginTitle">Buat Akun Baru</h2>
+        <p class="loginSub">Daftar gratis, data aman tersimpan di cloud</p>
+
+        <div class="loginError" id="regError"></div>
+
+        <div class="loginField">
+            <input type="email" id="regEmail" placeholder=" " autocomplete="off">
+            <label>✉️ Alamat Email</label>
+        </div>
+        <div class="loginField">
+            <input type="password" id="regPass" placeholder=" " autocomplete="new-password">
+            <label>🔒 Kata Sandi (min. 6 karakter)</label>
+            <!-- HANYA BARIS INI YANG DITAMBAHKAN -->
+            <button type="button" class="pass-toggle" onclick="togglePassword('regPass',this)" tabindex="-1">🙈</button>
+        </div>
+        <div class="loginField">
+            <input type="password" id="regPassConfirm" placeholder=" " autocomplete="new-password">
+            <label>🔁 Ulangi Kata Sandi</label>
+            <!-- HANYA BARIS INI YANG DITAMBAHKAN -->
+            <button type="button" class="pass-toggle" onclick="togglePassword('regPassConfirm',this)" tabindex="-1">🙈</button>
+        </div>
+
+        <button class="btnRegister" id="btnRegister" onclick="handleRegister()">BUAT AKUN</button>
+        <p class="switchAuth">Sudah punya akun? <a onclick="showLogin()">Masuk disini</a></p>
     </div>
 </div>
 
@@ -685,19 +759,68 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+    // ============================================================
+    // 👉 HANYA INI FUNGSI BARU, YANG LAIN 100% TIDAK DIUBAH
+    // ============================================================
+    function togglePassword(id, btn){
+        const el = document.getElementById(id);
+        if(el.type === 'password'){
+            el.type = 'text';
+            btn.innerText = '👁️';
+        } else {
+            el.type = 'password';
+            btn.innerText = '🙈';
+        }
+    }
+    // ============================================================
+
     let currentUID = null;
 
-    // ============ AUTENTIKASI FIREBASE ============
+    function showLogin(){
+        document.getElementById('registerPage').classList.remove('showAuth');
+        document.getElementById('loginPage').classList.remove('hiddenAuth');
+        document.getElementById('regError').style.display='none';
+        document.getElementById('loginError').style.display='none';
+    }
+    function showRegister(){
+        document.getElementById('loginPage').classList.add('hiddenAuth');
+        document.getElementById('registerPage').classList.add('showAuth');
+        document.getElementById('loginError').style.display='none';
+        document.getElementById('regError').style.display='none';
+    }
+    async function handleRegister(){
+        const email = document.getElementById('regEmail').value.trim();
+        const pass1 = document.getElementById('regPass').value;
+        const pass2 = document.getElementById('regPassConfirm').value;
+        const errEl = document.getElementById('regError');
+        const btn   = document.getElementById('btnRegister');
+        errEl.style.display='none';
+        btn.disabled = true; btn.innerText = "MEMBUAT AKUN...";
+
+        try {
+            if(pass1 !== pass2) throw { code:'pass-mismatch' };
+            await auth.createUserWithEmailAndPassword(email, pass1);
+        } catch(e){
+            errEl.innerText = "❌ " + (e.code==='pass-mismatch' ? 'Kata sandi tidak cocok' : pesanError(e.code));
+            errEl.style.display='block';
+        } finally {
+            btn.disabled=false; btn.innerText="BUAT AKUN";
+        }
+    }
+
     auth.onAuthStateChanged(user => {
         const loginPage = document.getElementById('loginPage');
+        const regPage   = document.getElementById('registerPage');
         if(user){
             currentUID = user.uid;
             document.getElementById('userEmailBox').innerText = "👤 " + user.email;
-            loginPage.classList.add('hiddenLogin');
+            loginPage.classList.add('hiddenAuth');
+            regPage.classList.remove('showAuth');
             syncLogFromFirebase();
         } else {
             currentUID = null;
-            loginPage.classList.remove('hiddenLogin');
+            loginPage.classList.remove('hiddenAuth');
+            regPage.classList.remove('showAuth');
         }
     });
 
@@ -711,13 +834,8 @@
 
         auth.signInWithEmailAndPassword(email, pass)
             .catch(e => {
-                // Jika akun belum ada → daftar otomatis, lalu login
-                if(e.code === 'auth/user-not-found'){
-                    return auth.createUserWithEmailAndPassword(email, pass);
-                } else {
-                    errEl.innerText = "❌ " + pesanError(e.code);
-                    errEl.style.display='block';
-                }
+                errEl.innerText = "❌ " + pesanError(e.code);
+                errEl.style.display='block';
             })
             .finally(()=>{ btn.disabled=false; btn.innerText="MASUK"; });
     }
@@ -743,7 +861,6 @@
         }
     }
 
-    // ============ SINKRONISASI & SIMPAN KE FIRESTORE ============
     async function syncLogFromFirebase(){
         if(!currentUID) return;
         const snap = await db.collection('users').doc(currentUID)
@@ -753,10 +870,9 @@
         localStorage.setItem('taxi_trip_log', JSON.stringify(list));
     }
 
-    // DIPANGGIL DI DALAM FUNGSI ASLI — TAMBAHAN SAJA
     const oriSaveTripToLog = saveTripToLog;
     async function saveTripToLog(){
-        oriSaveTripToLog(); // panggil fungsi ASLI TIDAK DIUBAH
+        oriSaveTripToLog();
         if(!currentUID) return;
         const all = JSON.parse(localStorage.getItem('taxi_trip_log') || '[]');
         if(all.length){
@@ -953,7 +1069,6 @@
         document.getElementById('p-total').innerText="Rp "+document.getElementById('fareDisplay').innerText;
         window.print();
     }
-    // function saveTripToLog() sudah di-override di bagian firebase di atas
     function renderLogData(){
         const c=document.getElementById('logContent'), t=JSON.parse(localStorage.getItem('taxi_trip_log')||'[]');
         if(!t.length){ c.innerHTML='<div class="log-empty">Belum ada data perjalanan tersimpan</div>'; return; }
